@@ -1,0 +1,3 @@
+main:
+  script: R/pipeline/_targets.R
+  store: _targets

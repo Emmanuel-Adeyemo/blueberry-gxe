@@ -1,0 +1,39 @@
+# R
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+*.Rproj
+renv/library/
+renv/local/
+renv/cellar/
+renv/lock/
+renv/python/
+renv/staging/
+
+# targets pipeline 
+_targets/
+_targets_r/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+.pytest_cache/
+
+
+data/processed/*
+!data/processed/.gitkeep
+
+
+artifacts/model2/*
+!artifacts/model2/.gitkeep
+!artifacts/model2/README.md
+
+
+.DS_Store
+.vscode/
+*.swp
+
+DESIGN.md
