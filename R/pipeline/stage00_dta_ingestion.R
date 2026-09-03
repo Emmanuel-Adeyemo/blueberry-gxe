@@ -1,3 +1,4 @@
+# 08/28/2026
 # AL pheno
 # Single rda file with 8 trial dta frames <LOC><YY>.ori + MetaData + OffID
 
@@ -103,7 +104,9 @@ stage00_targets = list(
   tar_target(firmness_long, al_all_dta$firmness_long),
   tar_target(brix_long, al_all_dta$brix_long),
   tar_target(ta_long, al_all_dta$ta_long),
-  tar_target(berry_diameter_long, al_all_dta$berry_diameter_long)
+  tar_target(berry_diameter_long, al_all_dta$berry_diameter_long),
+
+  tar_target(trial_genotypes, get_unique_genotypes(al_yield_long))
   
 )
 

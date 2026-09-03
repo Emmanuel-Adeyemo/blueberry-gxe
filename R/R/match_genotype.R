@@ -1,4 +1,4 @@
-# R/R
+# 09/02/2026
 # match external genotypes against processed pedigree from stage01, builds matching keys that survives formatting noise
 # two fixes: 1. normalize key types of pure formatting noise eg whitespaces, apostrophes. 2. Fix UF's convention that omits UF prefix.
 # TODO - in the process_pedigree.R - figure out the fuzzy matching e.g. "Springhigh" vs "Springhieght" or cross-source disagreement (e.g. Gumbo's

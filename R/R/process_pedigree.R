@@ -1,3 +1,5 @@
+
+# 09/01/2026
 # goal here is to untangle pedigree strings and resolve synonyms. I will build a synonym table with 'identifier' to compare against.
 # inputs are the six ingested pedigree files from R/R/ingest_pedigree.R from stage00.
 # two are already structured, UF and NCSU, with separate male and female parent columns. For that, nothing to really process

@@ -1,3 +1,4 @@
+# 08/28/2026
 # blueberry/R/R
 # legacy R scripts already processed AL field data. 
 # Rerun to try rxn norm for bloom data instead of the 
@@ -312,6 +313,13 @@ ingest_all_al_dta = function(rda_file){
     lapply(table_names, function(nm) bind_rows(purrr::map(results, nm))),
     table_names
   )
+}
+
+# 09/02/2026
+# Adding function to process one of the phenos to get the unique lines for genotypes used in trials
+get_unique_genotypes = function(long_dta) {
+  long_dta %>% 
+    distinct(.data$Genotype)
 }
 # 
 # 
