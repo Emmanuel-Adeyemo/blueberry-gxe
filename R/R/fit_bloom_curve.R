@@ -71,7 +71,7 @@ invert_logistic_day = function(Asym, xmid, scal, target){
 fit_bloom_independent = function(bloom_dta) {
   bloom_dta %>%
     group_by(PlantID) %>%
-    group_modify(function(rows ) as_tibble(.fit_bloom_independent_one(rows))) %>%
+    group_modify(function(rows, ... ) as_tibble(.fit_bloom_independent_one(rows))) %>%
     ungroup()
 }
 
@@ -127,18 +127,18 @@ str_extract_plant_id = function(x){
 doy_from_coefs = function(plant_coefs, low =5, mid = 50, full_frac = 0.95) {
   plant_coefs %>% 
     mutate(
-      day_5 = invert_logistic_day(Asym, xmid, scal, low),
-      day_50 = invert_logistic_day(Asym, xmid, scal, mid),
-      day_full = invert_logistic_day(Asym, xmid, scal, full_frac * Asym)
+      doy_5 = invert_logistic_day(Asym, xmid, scal, low),
+      doy_50 = invert_logistic_day(Asym, xmid, scal, mid),
+      doy_full = invert_logistic_day(Asym, xmid, scal, full_frac * Asym)
     ) %>% select(
-      'PlantID', 'day_5', 'day_50', 'day_full'
+      'PlantID', 'doy_5', 'doy_50', 'doy_full'
     )
 }
 
 
 # convert back to date
 season_doy_to_date = function(season, day_since_anchor) {
-  season_anchor_date(season) + round(days_since_anchor)
+  season_anchor_date(season) + round(day_since_anchor)
 }
 
 
@@ -190,7 +190,7 @@ harmonize_bloom_doy_independent = function(bloom_dta, low = 5, mid = 50, full_fr
     mutate(
       date_5 = season_doy_to_date(season, doy_5),
       date_50 = season_doy_to_date(season, doy_50),
-      date_full = season_doy_to_date(season, day_full)
+      date_full = season_doy_to_date(season, doy_full)
     )
 }
 
