@@ -51,7 +51,7 @@ build_match_keys = function(names, sources = NA_character_) {
 
 
 # do matching
-match_trial_genotypes = function(trail_genotypes, processed_pedigree) {
+match_trial_genotypes = function(trial_genotypes, processed_pedigree) {
   trial_keys = build_match_keys(trial_genotypes) %>%
     select('trial_genotype' = 'name', 'match_key')
 

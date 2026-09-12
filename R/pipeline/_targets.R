@@ -18,7 +18,8 @@ tar_option_set(
 
 c(
   stage00_targets,
-  stage01_targets
+  stage01_targets,
+  stage03_targets
 )
 
 

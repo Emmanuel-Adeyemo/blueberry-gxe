@@ -93,20 +93,17 @@ stage00_targets = list(
   
   tar_target(al_all_dta, ingest_all_al_dta(al_rda)),
   tar_target(al_bloom_long, al_all_dta$bloom_long),
-  tar_target(al_berry_long, al_all_dta$berry_percent_long),
-  tar_target(al_frost_long, al_all_dta$frost_percent_long),
   tar_target(al_yield_long, al_all_dta$yield_long),
   tar_target(al_health_score_long, al_all_dta$health_score_long),
   tar_target(al_plant_height_long, al_all_dta$plant_height_long),
-  tar_target(al_notes_long, al_all_dta$notes_long),
   tar_target(avg_berry_weight_long, al_all_dta$avg_berry_weight_long),
   
-  tar_target(firmness_long, al_all_dta$firmness_long),
-  tar_target(brix_long, al_all_dta$brix_long),
-  tar_target(ta_long, al_all_dta$ta_long),
-  tar_target(berry_diameter_long, al_all_dta$berry_diameter_long),
+  tar_target(al_firmness_long, al_all_dta$firmness_long),
+  tar_target(al_brix_long, al_all_dta$brix_long),
+  tar_target(al_ta_long, al_all_dta$ta_long),
+  tar_target(al_berry_diameter_long, al_all_dta$berry_diameter_long),
 
-  tar_target(trial_genotypes, get_unique_genotypes(al_yield_long))
+  tar_target(trial_genotypes, get_unique_genotypes(al_metadata))
   
 )
 
