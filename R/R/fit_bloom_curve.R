@@ -81,9 +81,118 @@ fit_bloom_nlme = function(bloom_dta, control = nlmeControl(maxIter = 100, msMaxI
 
   df = .add_subplot_id(bloom_dta) %>% 
     mutate(
-      x = days_since_season_anchor(obs_date, season)
+      x = days_since_season_anchor(obs_date, season),
+      BlockNo  =factor(BlockNo),
+      subplot_id = factor(subplot_id),
+      PlantID = factor(PlantID)
+    )
+  start_vals = .estimate_logistic_start_values(df$x, df$bloom_percent)
+
+  nlme(
+    bloom_percent ~ Asym / (1 + exp((xmid - x) / scal)),
+    data = df,
+    fixed = Asym + xmid + scal ~ 1,
+    random = list(
+      BlockNo = nlme::pdDiag(Asym + xmid + scal ~1),
+      subplot_id = nlme::pdDiag(xmid ~1),
+      PlantID = nlme::pdDiag(xmid ~1)
+    ), 
+    start = start_vals,
+    control = control
+  )
+}
+
+
+# extract params from fitted nlme
+extract_plant_coefs_nlme = function(fitted_model){
+  plant_coefs = coef(fitted_model, level = 3)
+  tibble(
+    PlantID = rownames(plant_coefs),
+    Asym = plant_coefs[['Asym']],
+    xmid = plant_coefs[['xmid']],
+    scal = plant_coefs[['scal']]
+  ) %>% 
+    mutate(PlantID = str_extract_plant_id(PlantID))
+
+}
+
+
+# rownames at innermost grouping levels not just PlantID
+str_extract_plant_id = function(x){
+  vapply(strsplit(x, '/', fixed=TRUE), function(parts) parts[length(parts)], character(1))
+}
+
+
+# converts into needed output
+doy_from_coefs = function(plant_coefs, low =5, mid = 50, full_frac = 0.95) {
+  plant_coefs %>% 
+    mutate(
+      day_5 = invert_logistic_day(Asym, xmid, scal, low),
+      day_50 = invert_logistic_day(Asym, xmid, scal, mid),
+      day_full = invert_logistic_day(Asym, xmid, scal, full_frac * Asym)
+    ) %>% select(
+      'PlantID', 'day_5', 'day_50', 'day_full'
     )
 }
 
 
-print(days_since_season_anchor(as.Date('2022-12-25'),2023))
+# convert back to date
+season_doy_to_date = function(season, day_since_anchor) {
+  season_anchor_date(season) + round(days_since_anchor)
+}
+
+
+# flag date estimates that fall outside plant's actual visit window especially nls()
+flag_extrapolated_day_estimates = function(doy_table, bloom_dta, buffer_days = 10) {
+  plant_ranges = bloom_dta %>%
+    mutate(x = days_since_season_anchor(obs_date, season)) %>% 
+    group_by(PlantID) %>%
+    summarise(min_x = min(x), max_x = max(x), .groups = 'drop')
+
+  doy_table %>%
+    left_join(plant_ranges, by = 'PlantID') %>%
+    mutate(
+      extrapolated = if_else(
+        is.na(day_50), NA, doy_5 < min_x - buffer_Days | doy_full > max_x + buffer_days
+      )
+    ) %>%
+    select(-'min_x', -'max_x')
+}
+
+
+# entry for nlme
+harmonize_bloom_doy_nlme = function(bloom_dta, low = 5, mid = 50, full_frac = 0.95) {
+  season = unique(bloom_dta$season)
+  if (length(season) != 1){
+    stop('bloom_dta must be a single envt ie one season, got: ', paste(season, collaspe = ", "))
+  }
+
+  fitted_model = fit_bloom_nlme(bloom_dta)
+  extract_plant_coefs_nlme(fitted_model) %>%
+    doy_from_coefs(low = low, mid = mid, full_frac = full_frac) %>%
+    mutate(
+      date_5 = season_doy_to_date(season, doy_5),
+      date_50 = season_doy_to_date(season, doy_50),
+      date_full = season_doy_to_date(season, doy_full)
+    )
+}
+
+
+# entry for independent
+harmonize_bloom_doy_independent = function(bloom_dta, low = 5, mid = 50, full_frac = 0.95) {
+  season = unique(bloom_dta$season)
+  if (length(season) != 1) {
+    stop('bloom_dta must be a single envt ie one season, got: ', paste(season, collapse = ', '))
+  }
+
+  fit_bloom_independent(bloom_dta) %>%
+    doy_from_coefs(low = low, mid = mid, full_frac = full_frac) %>%
+    mutate(
+      date_5 = season_doy_to_date(season, doy_5),
+      date_50 = season_doy_to_date(season, doy_50),
+      date_full = season_doy_to_date(season, day_full)
+    )
+}
+
+
+  print(days_since_season_anchor(as.Date('2022-12-25'),2023))
