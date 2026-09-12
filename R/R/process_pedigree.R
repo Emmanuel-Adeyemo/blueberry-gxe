@@ -208,7 +208,7 @@ extract_synonym_pairs = function(x) {
   name_a = str_trim(m[ok, 2])
   name_b = str_trim(m[ok, 3])
   tibble(name_a = name_a, name_b = name_b) %>%
-    filter(.looks_like_plausible_name(.data$name_a) & .looks_like_plausible_name(.data$name_b))
+    filter(.looks_like_plausible_name(name_a) & .looks_like_plausible_name(name_b))
 }
 
 
@@ -264,8 +264,8 @@ build_synonym_groups = function(pairs) {
   roots = vapply(all_names, function(nm) .uf_find(uf, nm), character(1))
 
   tibble(alias = all_names, group_root = roots) %>%
-    group_by(.data$group_root) %>%
-    mutate(identifier = sort(.data$alias)[1]) %>%
+    group_by(group_root) %>%
+    mutate(identifier = sort(alias)[1]) %>%
     ungroup() %>%
     select("alias", "identifier")
 }
@@ -336,19 +336,19 @@ combine_and_resolve_pedigree = function(uf_pedigree,
 
   pedigree_processed = combined %>%
     mutate(
-      line_id_raw = .data$line_id,
-      female_parent_raw = .data$female_parent,
-      male_parent_raw = .data$male_parent,
+      line_id_raw = line_id,
+      female_parent_raw = female_parent,
+      male_parent_raw = male_parent,
       
       # happens here
-      line_id = split_double_names(.data$line_id),
-      female_parent = split_double_names(.data$female_parent),
-      male_parent = split_double_names(.data$male_parent)
+      line_id = split_double_names(line_id),
+      female_parent = split_double_names(female_parent),
+      male_parent = split_double_names(male_parent)
     ) %>%
     mutate(
-      line_id = apply_synonym_map(.data$line_id, synonym_map),
-      female_parent = apply_synonym_map(.data$female_parent, synonym_map),
-      male_parent = apply_synonym_map(.data$male_parent, synonym_map)
+      line_id = apply_synonym_map(line_id, synonym_map),
+      female_parent = apply_synonym_map(female_parent, synonym_map),
+      male_parent = apply_synonym_map(male_parent, synonym_map)
     ) %>%
     select(
       "source", "line_id", "female_parent", "male_parent",

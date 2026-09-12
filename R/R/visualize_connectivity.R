@@ -11,15 +11,15 @@ classify_connectivity_status = function(edge_overlaps, strong_threshold = 8, cor
   )
 
   n_partners = long %>%
-    distinct(.data$environment, .data$partner) %>%
-    count(.data$environment, name = "n_partners")
+    distinct(environment, partner) %>%
+    count(environment, name = "n_partners")
 
   long %>%
-    group_by(.data$environment) %>%
-    summarise(n_strong_ties = sum(.data$overlap >= strong_threshold), .groups = "drop") %>%
+    group_by(environment) %>%
+    summarise(n_strong_ties = sum(overlap >= strong_threshold), .groups = "drop") %>%
     left_join(n_partners, by = "environment") %>%
     mutate(
-      strong_tie_fraction = .data$n_strong_ties / .data$n_partners,
+      strong_tie_fraction = n_strong_ties / n_partners,
       status = case_when(
         n_strong_ties == 0 ~ "isolated / weak link",
         strong_tie_fraction >= core_min_fraction ~ "well-connected core",

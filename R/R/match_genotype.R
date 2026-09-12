@@ -60,6 +60,6 @@ match_trial_genotypes = function(trial_genotypes, processed_pedigree) {
 
   trial_keys %>% 
     inner_join(pedigree_keys, by = 'match_key', relationship = 'many-to-many') %>% 
-    distinct(.data$trial_genotype, .data$line_id, .data$source, .data$key_type) %>%
-    arrange(.data$trial_genotype, .data$key_type)
+    distinct(trial_genotype, line_id, source, key_type) %>%
+    arrange(trial_genotype, key_type)
 }

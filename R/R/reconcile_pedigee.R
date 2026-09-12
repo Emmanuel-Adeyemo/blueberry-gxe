@@ -30,19 +30,19 @@ library(tibble)
   }
 
   group_root <- vapply(all_keys, function(k) .uf_find(uf, k), character(1))
-  keys <- keys %>% mutate(group_id = group_root[match(.data$match_key, all_keys)])
+  keys <- keys %>% mutate(group_id = group_root[match(match_key, all_keys)])
 
   # a source "supports" a group if ANY of its rows landed in it
   group_support <- keys %>%
     distinct(source, group_id) %>%
     count(group_id, name = "n_sources_agreeing") %>%
-    arrange(desc(.data$n_sources_agreeing))
+    arrange(desc(n_sources_agreeing))
 
   representatives <- keys %>%
     distinct(name, group_id) %>%
     mutate(
-      informative_len = nchar(str_remove_all(.data$name, "\\s+")),
-      raw_len = nchar(.data$name)
+      informative_len = nchar(str_remove_all(name, "\\s+")),
+      raw_len = nchar(name)
     ) %>%
     group_by(group_id) %>%
     slice_max(order_by = informative_len, n = 1, with_ties = TRUE) %>%
@@ -65,7 +65,7 @@ library(tibble)
   identifier_value = representatives$name[representatives$group_id == winner]
 
   alternatives = representatives %>%
-    filter(.data$group_id != winner) %>% 
+    filter(group_id != winner) %>% 
     pull(name) %>% 
     paste(collapse = '; ')
 

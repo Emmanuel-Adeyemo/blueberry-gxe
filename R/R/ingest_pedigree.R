@@ -24,12 +24,12 @@ read_uf_pedigree = function(path){
     as_tibble() %>%
     transmute(
       source = 'UF',
-      line_id = as.character(.data$Clone),
-      female_parent = na_if(as.character(.data$Female), '0'),
-      male_parent = na_if(as.character(.data$Male), '0')
+      line_id = as.character(Clone),
+      female_parent = na_if(as.character(Female), '0'),
+      male_parent = na_if(as.character(Male), '0')
                             
     ) %>%
-    filter(!(is.na(.data$line_id) | .data$line_id == '0'))
+    filter(!(is.na(line_id) | line_id == '0'))
 }
 
 
@@ -41,14 +41,14 @@ read_ncsu_pedigree = function(path) {
   raw %>%
     transmute(
       source = "NCSU",
-      line_id = as.character(.data$CommercialName),
-      female_parent = na_if(str_trim(as.character(.data$FemaleParent)), "unk"),
-      male_parent = na_if(str_trim(as.character(.data$MaleParent)), "unk"),
+      line_id = as.character(CommercialName),
+      female_parent = na_if(str_trim(as.character(FemaleParent)), "unk"),
+      male_parent = na_if(str_trim(as.character(MaleParent)), "unk"),
       patent_date = .data[["patent date"]],
       expiration_date = .data[["expiration date"]],
       owner = .data$owner
     ) %>%
-    filter(!is.na(.data$line_id))
+    filter(!is.na(line_id))
 }
 
 
@@ -64,10 +64,10 @@ read_uga_pedigree_crosses = function(path) {
   raw %>%
     transmute(
       source = "UGA",
-      line_id = str_trim(.data$line_id),
-      pedigree_raw = str_trim(.data$pedigree_raw)
+      line_id = str_trim(line_id),
+      pedigree_raw = str_trim(pedigree_raw)
     ) %>%
-    filter(!is.na(.data$line_id) & .data$line_id != "")
+    filter(!is.na(line_id) & line_id != "")
 }
 
 
@@ -94,8 +94,8 @@ read_uga_pedigree_ancestors = function(path) {
     ) %>%
     filter(!is_blank_row) %>%
     mutate(
-      line_id = str_trim(.data$line_id),
-      pedigree_raw = str_trim(.data$pedigree_raw)
+      line_id = str_trim(line_id),
+      pedigree_raw = str_trim(pedigree_raw)
     ) %>%
     select("source", "block_id", "line_id", "pedigree_raw")
 }
@@ -110,10 +110,10 @@ read_ms_usda_pedigree = function(path){
   raw %>%
     transmute(
       source = 'MS_USDA',
-      line_id = str_trim(as.character(.data$Genotype)),
-      pedigree_raw = str_trim(as.character(.data$Pedigree))
+      line_id = str_trim(as.character(Genotype)),
+      pedigree_raw = str_trim(as.character(Pedigree))
     ) %>% 
-    filter(!is.na(.data$line_id) & .data$line_id != '')
+    filter(!is.na(line_id) & line_id != '')
 }
 
 
@@ -124,9 +124,9 @@ read_shb_ebrahiem_pedigree <- function(path) {
   raw %>%
     transmute(
       source = "SHB_Ebrahiem",
-      line_id = str_trim(as.character(.data$Accession)),
-      pedigree_raw = str_trim(as.character(.data$Pedigree)),
-      observation_raw = str_trim(as.character(.data$Observation))
+      line_id = str_trim(as.character(Accession)),
+      pedigree_raw = str_trim(as.character(Pedigree)),
+      observation_raw = str_trim(as.character(Observation))
     ) %>%
-    filter(!is.na(.data$line_id) & .data$line_id != "")
+    filter(!is.na(line_id) & line_id != "")
 }

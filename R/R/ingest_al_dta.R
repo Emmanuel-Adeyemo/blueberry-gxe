@@ -205,7 +205,7 @@ extract_trial_loc_and_season = function(rda_file){
     mutate(
       season = season,
       location = location,
-      obs_date = .al_parse_date(.data$obs_date_raw, prefix),
+      obs_date = .al_parse_date(obs_date_raw, prefix),
       .keep = 'unused'
     ) %>%
     relocate('season', 'location', 'obs_date', .before = 1) %>%
