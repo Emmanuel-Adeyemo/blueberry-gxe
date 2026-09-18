@@ -17,11 +17,12 @@ build_table = function(al_metadata_raw, al_off_type_raw, season, location){
     filter(!is.na(PlantingYear)) %>%
     filter(!(PlantID %in% al_off_type_raw$PlantID)) %>%
     mutate(Age = season - PlantingYear) %>%
-    filter(Age > 0)
+    filter(Age > 0) %>%
+    filter(Ecotype == 'SHB')
 
-  if(season == 2026){
-    table_dta = table_dta %>% filter(Ecotype == 'SHB')
-  }
+  # if(season == 2026){
+  #   table_dta = table_dta %>% filter(Ecotype == 'SHB')
+  # }
 
   table_dta %>%
     select(
@@ -29,6 +30,23 @@ build_table = function(al_metadata_raw, al_off_type_raw, season, location){
     )
 
 }
+
+
+# interpolate_human_error_dta = function(bloom_long, season, location) {
+
+#   season_tmp = bloom_long %>% filter(season == season, location == location)
+
+#   bloom_clean = season_tmp %>% 
+#     arrange(PlantID, obs_date) %>%
+#     group_by(PlantID) %>%
+#     mutate(
+#       running_max = cummax(bloom_percent),
+#       bloom_percent = if_else(bloom_percent < running_max, running_max, bloom_percent)
+#     ) %>% ungroup() %>%
+#     select(-running_max)
+
+# }
+
 
 
 clean_al_trait_long = function(trait_long, al_metadata_raw, al_off_type_raw){
@@ -42,6 +60,6 @@ clean_al_trait_long = function(trait_long, al_metadata_raw, al_off_type_raw){
   })
 
   trait_long %>% select(-any_of(AL_METADATA_COLS)) %>%
-    inner_join(table_dta, by = c('PlantID', 'season', 'location'))
+    inner_join(table_dta, by = c('PlantID', 'season', 'location')) 
 }
 

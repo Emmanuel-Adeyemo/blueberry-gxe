@@ -230,7 +230,7 @@ tidy_single_envt = function(raw, season, location) {
   id_cols = .al_resolve_id_cols(raw)
   
   bloom_long = .al_trait_wide_to_long(
-    raw, id_cols, AL_TRAIT_PREFIXES[['bloom_percent']], 'bloom', season, location
+    raw, id_cols, AL_TRAIT_PREFIXES[['bloom_percent']], 'bloom_percent', season, location
   )
   
   yield_long = .al_trait_wide_to_long(
