@@ -190,7 +190,7 @@ doy_from_coefs = function(plant_coefs, low =5, mid = 50, full_frac = 0.95) {
       doy_5 = invert_logistic_day(Asym, xmid, scal, low),
       doy_50 = invert_logistic_day(Asym, xmid, scal, mid),
       doy_full = invert_logistic_day(Asym, xmid, scal, full_frac * Asym)
-    ) %>% select(
+    ) %>% dplyr::select(
       PlantID, doy_5, doy_50, doy_full, any_of('model_spec')
     )
 }
@@ -216,7 +216,7 @@ flag_extrapolated_day_estimates = function(doy_table, bloom_dta, buffer_days = 1
         is.na(day_50), NA, doy_5 < min_x - buffer_Days | doy_full > max_x + buffer_days
       )
     ) %>%
-    select(-'min_x', -'max_x')
+    dplyr::select(-'min_x', -'max_x')
 }
 
 

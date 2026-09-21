@@ -48,7 +48,7 @@ library(tibble)
     slice_max(order_by = informative_len, n = 1, with_ties = TRUE) %>%
     slice_min(order_by = raw_len, n = 1, with_ties = FALSE) %>%
     ungroup() %>%
-    select("name", "group_id")
+    dplyr::select("name", "group_id")
 
   n_groups <- nrow(group_support)
   winner <- group_support$group_id[1]
@@ -91,7 +91,7 @@ reconcile_trial_genotype_pedigree = function(genotype_matches, processed_pedigre
   joined = genotype_matches %>%
     distinct(trial_genotype, line_id, source) %>%
     left_join(
-      processed_pedigree %>% select('line_id', 'source', 'female_parent', 'male_parent'),
+      processed_pedigree %>% dplyr::select('line_id', 'source', 'female_parent', 'male_parent'),
       by = c('line_id', 'source')
     )
   

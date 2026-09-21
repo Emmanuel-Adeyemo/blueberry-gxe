@@ -267,7 +267,7 @@ build_synonym_groups = function(pairs) {
     group_by(group_root) %>%
     mutate(identifier = sort(alias)[1]) %>%
     ungroup() %>%
-    select("alias", "identifier")
+    dplyr::select("alias", "identifier")
 }
 
 # rewrite character vec to identifier name, ie based on synonym_map. values not present in map remain unchanged
@@ -296,8 +296,8 @@ combine_and_resolve_pedigree = function(uf_pedigree,
   
   # these are already structured
   already_structured = bind_rows(
-    uf_pedigree %>% select("source", "line_id", "female_parent", "male_parent"),
-    ncsu_pedigree %>% select("source", "line_id", "female_parent", "male_parent")
+    uf_pedigree %>% dplyr::select("source", "line_id", "female_parent", "male_parent"),
+    ncsu_pedigree %>% dplyr::select("source", "line_id", "female_parent", "male_parent")
   ) %>%
     mutate(
       pedigree_raw = NA_character_,
@@ -309,7 +309,7 @@ combine_and_resolve_pedigree = function(uf_pedigree,
     # for the problem children
   parse_source = function(dta_table) {
     bind_cols(
-      dta_table %>% select("source", "line_id", pedigree_raw),
+      dta_table %>% dplyr::select("source", "line_id", pedigree_raw),
       parse_pedigree_string(dta_table$pedigree_raw)
     )
   }
@@ -350,7 +350,7 @@ combine_and_resolve_pedigree = function(uf_pedigree,
       female_parent = apply_synonym_map(female_parent, synonym_map),
       male_parent = apply_synonym_map(male_parent, synonym_map)
     ) %>%
-    select(
+    dplyr::select(
       "source", "line_id", "female_parent", "male_parent",
       "female_parent_note", "male_parent_note", "parse_status","pedigree_raw",
       "line_id_raw", "female_parent_raw", "male_parent_raw"

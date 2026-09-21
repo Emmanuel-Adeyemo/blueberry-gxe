@@ -78,12 +78,12 @@ leave_visits_out_cv = function(bloom_dta, min_visits = 6, drop_frac = 0.4, n_pla
 
   full_independent = fit_bloom_independent(bloom_dta) %>%
     doy_from_coefs() %>%
-    select(PlantID, doy_50_full = 'doy_50')
+    dplyr::select(PlantID, doy_50_full = 'doy_50')
 
   full_nlme_fit = fit_bloom_nlme(bloom_dta) 
   full_nlme = extract_plant_coefs_nlme(full_nlme_fit) %>%
     doy_from_coefs() %>%
-    select(PlantID, doy_50_full = 'doy_50')
+    dplyr::select(PlantID, doy_50_full = 'doy_50')
 
   results = map_dfr(test_plants, function(pid) {
     plant_visits = bloom_dta %>% filter(PlantID == pid)
@@ -141,12 +141,12 @@ agreement_by_dta_density = function(bloom_dta) {
 
   indy = fit_bloom_independent(bloom_dta) %>%
     doy_from_coefs() %>%
-    select(PlantID, day_50_independent = 'doy_50')
+    dplyr::select(PlantID, day_50_independent = 'doy_50')
 
   nlme_fit = fit_bloom_nlme(bloom_dta)
   mm = extract_plant_coefs_nlme(nlme_fit) %>%
     doy_from_coefs() %>%
-    select(PlantID, doy_50_nlme = 'doy_50')
+    dplyr::select(PlantID, doy_50_nlme = 'doy_50')
 
   visit_counts %>%
     left_join(indy, by = 'PlantID') %>%

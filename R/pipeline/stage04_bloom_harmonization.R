@@ -1,6 +1,6 @@
+# 09/18
 
-
-stage04_targets <- list(
+stage04_targets = list(
   tar_target(
     al_bloom_environments,
     al_bloom_long_clean %>% dplyr::distinct(season, location)
@@ -17,6 +17,7 @@ stage04_targets <- list(
           interpolate_bloom_doy(env_data)
         })
       ) %>%
+      dplyr::select(-location, -season) %>%
       tidyr::unnest(doy)
   ),
 
@@ -32,40 +33,45 @@ stage04_targets <- list(
           compute_bloom_auc(env_data)
         })
       ) %>%
+      dplyr::select(-location, -season) %>%
       tidyr::unnest(auc)
-  ),
+  )
+
+)
+
+
 
 
   # next two not production, just keeping this here since I spent so much time making it work
 
-  tar_target(
-    al_bloom_doy_nlme,
-    al_bloom_environments %>%
-      dplyr::mutate(
-        doy = purrr::pmap(list(season, location), function(season, location) {
-          env_data = al_bloom_long_clean[
-            al_bloom_long_clean$season == season & al_bloom_long_clean$location == location,
-          ]
-          harmonize_bloom_doy_nlme(env_data)
-        })
-      ) %>%
-      tidyr::unnest(doy),
-    error = "continue"
-  ),
+#   tar_target(
+#     al_bloom_doy_nlme,
+#     al_bloom_environments %>%
+#       dplyr::mutate(
+#         doy = purrr::pmap(list(season, location), function(season, location) {
+#           env_data = al_bloom_long_clean[
+#             al_bloom_long_clean$season == season & al_bloom_long_clean$location == location,
+#           ]
+#           harmonize_bloom_doy_nlme(env_data)
+#         })
+#       ) %>%
+#       tidyr::unnest(doy),
+#     error = "continue"
+#   ),
 
 
-  tar_target(
-    al_bloom_cv_validation,
-    al_bloom_environments %>%
-      dplyr::mutate(
-        cv = purrr::pmap(list(season, location), function(season, location) {
-          env_data = al_bloom_long_clean[
-            al_bloom_long_clean$season == season & al_bloom_long_clean$location == location,
-          ]
-          leave_visits_out_cv(env_data)
-        })
-      ) %>%
-      tidyr::unnest(cv),
-    error = "continue"
-  )
-)
+#   tar_target(
+#     al_bloom_cv_validation,
+#     al_bloom_environments %>%
+#       dplyr::mutate(
+#         cv = purrr::pmap(list(season, location), function(season, location) {
+#           env_data = al_bloom_long_clean[
+#             al_bloom_long_clean$season == season & al_bloom_long_clean$location == location,
+#           ]
+#           leave_visits_out_cv(env_data)
+#         })
+#       ) %>%
+#       tidyr::unnest(cv),
+#     error = "continue"
+#   )
+# )

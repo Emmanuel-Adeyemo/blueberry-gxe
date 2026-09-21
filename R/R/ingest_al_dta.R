@@ -196,7 +196,7 @@ extract_trial_loc_and_season = function(rda_file){
   # id_cols = setdiff(names(raw), all_trait_cols)
 #   
   raw %>% 
-    select(all_of(c(id_cols, trait_cols))) %>%
+    dplyr::select(all_of(c(id_cols, trait_cols))) %>%
     pivot_longer(
       cols = all_of(trait_cols),
       names_to = 'obs_date_raw',

@@ -6,8 +6,8 @@ library(igraph)
 
 classify_connectivity_status = function(edge_overlaps, strong_threshold = 8, core_min_fraction = 0.5) {
   long = bind_rows(
-    edge_overlaps %>% select(environment = "env_a", partner = "env_b", "overlap"),
-    edge_overlaps %>% select(environment = "env_b", partner = "env_a", "overlap")
+    edge_overlaps %>% dplyr::select(environment = "env_a", partner = "env_b", "overlap"),
+    edge_overlaps %>% dplyr::select(environment = "env_b", partner = "env_a", "overlap")
   )
 
   n_partners = long %>%
@@ -26,7 +26,7 @@ classify_connectivity_status = function(edge_overlaps, strong_threshold = 8, cor
         TRUE ~ "partially connected"
       )
     ) %>%
-    select("environment", "n_strong_ties", "strong_tie_fraction", "status")
+    dplyr::select("environment", "n_strong_ties", "strong_tie_fraction", "status")
 }
 
 
@@ -45,7 +45,7 @@ plot_check_connectivity_network = function(node_counts,
   node_counts = node_counts %>% left_join(status, by = "environment")
 
   g = graph_from_data_frame(
-    edge_overlaps %>% select("env_a", "env_b", weight = "overlap"),
+    edge_overlaps %>% dplyr::select("env_a", "env_b", weight = "overlap"),
     directed = FALSE,
     vertices = node_counts
   )
@@ -59,8 +59,8 @@ plot_check_connectivity_network = function(node_counts,
     left_join(node_counts, by = "environment")
 
   edge_df = edge_overlaps %>%
-    left_join(node_df %>% select("env_a" = "environment", x_a = "x", y_a = "y"), by = "env_a") %>%
-    left_join(node_df %>% select("env_b" = "environment", x_b = "x", y_b = "y"), by = "env_b")
+    left_join(node_df %>% dplyr::select("env_a" = "environment", x_a = "x", y_a = "y"), by = "env_a") %>%
+    left_join(node_df %>% dplyr::select("env_b" = "environment", x_b = "x", y_b = "y"), by = "env_b")
 
   status_colors = c(
     "well-connected core" = "#2C7A4B",

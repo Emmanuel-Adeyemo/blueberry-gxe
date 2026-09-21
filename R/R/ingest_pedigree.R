@@ -83,7 +83,7 @@ read_uga_pedigree_ancestors = function(path) {
   
   raw = raw %>%
     rename(line_id = "Line ID", pedigree_raw = "Pedigree") %>%
-    select("line_id", "pedigree_raw")
+    dplyr::select("line_id", "pedigree_raw")
   
   is_blank_row = is.na(raw$line_id) & is.na(raw$pedigree_raw)
   
@@ -97,7 +97,7 @@ read_uga_pedigree_ancestors = function(path) {
       line_id = str_trim(line_id),
       pedigree_raw = str_trim(pedigree_raw)
     ) %>%
-    select("source", "block_id", "line_id", "pedigree_raw")
+    dplyr::select("source", "block_id", "line_id", "pedigree_raw")
 }
 
 

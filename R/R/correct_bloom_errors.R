@@ -32,6 +32,6 @@ exclude_never_bloomed = function(bloom_dta) {
 
   list(
     bloom_dta = filtered,
-    excluded_plants = dead_plants %>% select(PlantID, season)
+    excluded_plants = dead_plants %>% dplyr::select(PlantID, season)
   )
 }

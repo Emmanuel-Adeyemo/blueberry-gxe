@@ -42,7 +42,9 @@ interpolate_bloom_doy = function(bloom_dta, thresholds = c(bloom1 = 1, bloom5 = 
       map_dfc(thresholds, ~ .interpolate_threshold_date(obs_date, bloom_percent, .x))
     ) %>%
     left_join(plant_meta, by = c('season', 'location', 'PlantID')) %>%
-    relocate('BlockNo', 'SubplotNo', 'Genotype', .after = 'PlantID')
+    relocate('BlockNo', 'SubplotNo', 'Genotype', .after = 'PlantID') %>%
+    # added bloom duration since I wont get that from AUC - 09/18
+    mutate(bloom_duration = bloom100 - bloom5)
   
 }
 
@@ -70,19 +72,24 @@ interpolate_bloom_doy = function(bloom_dta, thresholds = c(bloom1 = 1, bloom5 = 
 
 
 # compute AUC per plant for one envt on both raw and carry forward bloom percents
-compute_bloom_auc = function(bloom_data, few_distinct_threshold = 3) {
-  season = unique(bloom_data$season)
+compute_bloom_auc = function(bloom_dta, few_distinct_threshold = 3) {
+
+  plant_meta = bloom_dta %>%
+    distinct(season, location, PlantID, BlockNo, SubplotNo, Genotype)
+
+
+  season = unique(bloom_dta$season)
   if (length(season) != 1) {
-    stop("compute_bloom_auc(): bloom_data must be a single environment (one season), got: ", paste(season, collapse = ', '))
+    stop("compute_bloom_auc(): bloom_dta must be a single environment (one season), got: ", paste(season, collapse = ', '))
   }
 
   window_start = season_anchor_date(season)
-  window_end = max(bloom_data$obs_date)
+  window_end = max(bloom_dta$obs_date)
   window_length = as.numeric(window_end - window_start)
 
-  bloom_data %>%
-    arrange(PlantID, obs_date) %>%
-    group_by(PlantID) %>%
+  bloom_dta %>%
+    arrange(season, location, PlantID, obs_date) %>%
+    group_by(season, location, PlantID) %>%
     summarise(
       auc_raw_absolute = .trapezoidal_bloom_auc(obs_date, bloom_percent_raw, window_start, window_end),
       auc_corrected_absolute = .trapezoidal_bloom_auc(obs_date, bloom_percent, window_start, window_end),
@@ -90,10 +97,12 @@ compute_bloom_auc = function(bloom_data, few_distinct_threshold = 3) {
       .groups = "drop"
     ) %>%
     mutate(
-      auc_raw_relative = auc_raw_absolute / (100 * window_length),
-      auc_corrected_relative = auc_corrected_absolute / (100 * window_length),
+      auc_raw_percent = auc_raw_absolute / (window_length),
+      auc_corrected_percent = auc_corrected_absolute / (window_length),
       frost_impact_absolute = auc_corrected_absolute - auc_raw_absolute,
-      frost_impact_relative = auc_corrected_relative - auc_raw_relative,
+      frost_impact_percent = auc_corrected_percent - auc_raw_percent,
       few_distinct_bloom_values = n_distinct_bloom_values <= few_distinct_threshold
-    )
+    )%>%
+    left_join(plant_meta, by = c('season', 'location', 'PlantID')) %>%
+    relocate('BlockNo', 'SubplotNo', 'Genotype', .after = 'PlantID')
 }

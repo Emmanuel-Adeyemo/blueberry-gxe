@@ -53,10 +53,10 @@ build_match_keys = function(names, sources = NA_character_) {
 # do matching
 match_trial_genotypes = function(trial_genotypes, processed_pedigree) {
   trial_keys = build_match_keys(trial_genotypes) %>%
-    select('trial_genotype' = 'name', 'match_key')
+    dplyr::select('trial_genotype' = 'name', 'match_key')
 
   pedigree_keys = build_match_keys(processed_pedigree$line_id, processed_pedigree$source) %>%
-    select('line_id' = 'name', 'source', 'match_key', 'key_type')
+    dplyr::select('line_id' = 'name', 'source', 'match_key', 'key_type')
 
   trial_keys %>% 
     inner_join(pedigree_keys, by = 'match_key', relationship = 'many-to-many') %>% 
