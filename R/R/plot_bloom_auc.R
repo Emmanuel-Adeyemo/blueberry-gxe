@@ -67,7 +67,6 @@ plot_bloom_auc = function(bloom_dta, plant_ids) {
     scale_color_manual(values = c("Raw (frost-affected)" = "#D55E00", "Corrected (carry-forward)" = "#0072B2")) +
     labs(
       title = 'Bloom progression and area under the curve: raw vs. frost-corrected',
-      subtitle = 'The shaded gap between the two curves is the frost-impact metric',
       x = 'Date', y = 'Bloom (%)', fill = NULL, color = NULL
     ) +
     geom_text(
