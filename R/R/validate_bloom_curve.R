@@ -29,7 +29,7 @@ library(tibble)
 
 
 
-calc_b50_interpolation <- function(bloom_data, thresholds = c(bloom1 = 1, bloom5 = 5, bloom10 = 10, bloom50 = 50, bloom100 = 100)) {
+calc_b50_interpolation = function(bloom_data, thresholds = c(bloom1 = 1, bloom5 = 5, bloom10 = 10, bloom50 = 50, bloom100 = 100)) {
   bloom_data %>%
     arrange(PlantID, obs_date) %>%
     group_by(PlantID) %>%

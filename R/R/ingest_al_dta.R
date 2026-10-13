@@ -5,18 +5,18 @@
 # interpolation used in the legacy script
 
 # 
-# EV23.ori <- read_csv("Data/EV23_071526.csv")
-# EV24.ori <- read_csv("Data/EV24_071526.csv")
-# EV25.ori <- read_csv("Data/EV25_071526.csv")
-# EV26.ori <- read_csv("Data/EV26_071526.csv")
+# EV23.ori <- read_csv('Data/EV23_071526.csv')
+# EV24.ori <- read_csv('Data/EV24_071526.csv')
+# EV25.ori <- read_csv('Data/EV25_071526.csv')
+# EV26.ori <- read_csv('Data/EV26_071526.csv')
 # 
-# BW23.ori <- read_csv("Data/BW23_071526.csv")
-# BW24.ori <- read_csv("Data/BW24_071526.csv")
-# BW25.ori <- read_csv("Data/BW25_071526.csv")
-# BW26.ori <- read_csv("Data/BW26_071526.csv")
+# BW23.ori <- read_csv('Data/BW23_071526.csv')
+# BW24.ori <- read_csv('Data/BW24_071526.csv')
+# BW25.ori <- read_csv('Data/BW25_071526.csv')
+# BW26.ori <- read_csv('Data/BW26_071526.csv')
 # 
-# OffID <- read_csv("Data/OffType.csv")$PlantID
-# MetaData <- read_csv("Data/MetaData.csv")
+# OffID <- read_csv('Data/OffType.csv')$PlantID
+# MetaData <- read_csv("'Data/MetaData.csv')
 # 
 # save(EV23.ori, EV24.ori, EV25.ori, EV26.ori,
 #      BW23.ori, BW24.ori, BW25.ori, BW26.ori, # typo here. Changed EV26.ori (appeared twice) to BW26.ori
@@ -32,26 +32,17 @@ library(tibble)
 library(tidyr)
 
 
-AL_TRAIT_PREFIXES <- c(
-  bloom_percent = "Bloom%_",
-  berry_percent = "Berry%_", # fruit-set progression, same shape as bloom
-  frost_percent = "Frost%_", # will not use
-  yield = "Yield_",
-  health_score = "HealthScore_", # dated visit score 
-  plant_height = "PlantHeight_", # dated measurement 
-  notes = "Notes_", 
-  avg_berry_weight = "AverageBerryWeight_", 
-  firmness = "Firmness_", 
-  brix = "Brix_", 
-  ta = "TA_",
-  berry_diameter = "BerryDiameter_" 
+AL_TRAIT_PREFIXES = c(
+  bloom_percent = 'Bloom%_', 
+  yield = 'Yield_'
+  
 )
 
 
 
-AL_ID_COLS <- c(
-  "PlantID", "BlockNo", "SubplotNo", "RepNo", "Genotype", "Ecotype",
-  "HealthSummary", "PlantHeightSummary", "Harvested"
+AL_ID_COLS = c(
+  'PlantID', 'BlockNo', 'SubplotNo', 'RepNo', 'Genotype', 'Ecotype',
+  "HealthSummary", 'PlantHeightSummary', 'Harvested"'
 )
 
 
@@ -95,14 +86,13 @@ extract_trial_loc_and_season = function(rda_file){
   # 
   unexpected = setdiff(file_names[!is_trial], c('MetaData', 'OffID'))
   if (length(unexpected) > 0) {
-    warning('unexpected file extracted from AL rda file',
-            paste(unexpected, collapse = ', '))
+    warning('unexpected file extracted from AL rda file', paste(unexpected, collapse = ', '))
   }
   
   tibble::tibble(
     file_name = file_names[is_trial],
-    location = vapply(parsed[is_trial], `[[`, character(1), "location"),
-    season = vapply(parsed[is_trial], `[[`, integer(1), "season")
+    location = vapply(parsed[is_trial], `[[`, character(1), 'location'),
+    season = vapply(parsed[is_trial], `[[`, integer(1), 'season')
   )
   
 }
@@ -120,12 +110,12 @@ extract_trial_loc_and_season = function(rda_file){
 .al_parse_date = function(col_names, prefix) {
   raw_date = str_sub(col_names, nchar(prefix) + 1)
   # in case of / or - in date
-  raw_date = str_remove_all(raw_date, "[^0-9]")
+  raw_date = str_remove_all(raw_date, '[^0-9]')
   n = nchar(raw_date)
 
   out = as.Date(rep(NA_character_, length(raw_date)))
-  out[n == 6] = as.Date(raw_date[n == 6], format = "%m%d%y")
-  out[n == 8] = as.Date(raw_date[n == 8], format = "%m%d%Y")
+  out[n == 6] = as.Date(raw_date[n == 6], format = '%m%d%y')
+  out[n == 8] = as.Date(raw_date[n == 8], format = '%m%d%Y')
 
   # unexpected = !(n %in% c(6, 8))
   # if (any(unexpected)) {
@@ -217,7 +207,7 @@ extract_trial_loc_and_season = function(rda_file){
 #' @param raw - single environment
 #' @param season - trial season eg 2023
 #' @param location - trial location eg BW
-#' #' @output list(bloom_long,..., berry_diameter_long) combined for a single location
+#' @output list(bloom_long,..., berry_diameter_long) combined for a single location
 
 tidy_single_envt = function(raw, season, location) {
 
@@ -237,45 +227,10 @@ tidy_single_envt = function(raw, season, location) {
     raw, id_cols, AL_TRAIT_PREFIXES[['yield']], 'yield', season, location
   )
   
-  health_score_long = .al_trait_wide_to_long(
-    raw, id_cols, AL_TRAIT_PREFIXES[['health_score']], 'health_score', season, location
-  )
-  
-  plant_height_long = .al_trait_wide_to_long(
-    raw, id_cols, AL_TRAIT_PREFIXES[['plant_height']], 'plant_height', season, location
-  )
-  
-  avg_berry_weight_long = .al_trait_wide_to_long(
-    raw, id_cols, AL_TRAIT_PREFIXES[['avg_berry_weight']], 'avg_berry_weight', season, location
-  )
-  
-  firmness_long = .al_trait_wide_to_long(
-    raw, id_cols, AL_TRAIT_PREFIXES[['firmness']], 'firmness', season, location
-  )
-  
-  brix_long = .al_trait_wide_to_long(
-    raw, id_cols, AL_TRAIT_PREFIXES[['brix']], 'brix', season, location
-  )
-  
-  ta_long = .al_trait_wide_to_long(
-    raw, id_cols, AL_TRAIT_PREFIXES[['ta']], 'ta', season, location
-  )
-  
-  berry_diameter_long = .al_trait_wide_to_long(
-    raw, id_cols, AL_TRAIT_PREFIXES[['berry_diameter']], 'berry_diameter', season, location
-  )
-  
   
   list( 
     bloom_long = bloom_long,
-    yield_long = yield_long,
-    health_score_long = health_score_long,
-    plant_height_long = plant_height_long,
-    avg_berry_weight_long = avg_berry_weight_long,
-    firmness_long = firmness_long,
-    brix_long = brix_long,
-    ta_long = ta_long,
-    berry_diameter_long = berry_diameter_long
+    yield_long = yield_long
     )
   
 }
@@ -301,8 +256,7 @@ ingest_all_al_dta = function(rda_file){
   )
   
   table_names = c(
-    'bloom_long', 'yield_long', 'health_score_long', 'plant_height_long',
-    'avg_berry_weight_long', 'firmness_long', 'brix_long', 'ta_long', 'berry_diameter_long'
+    'bloom_long', 'yield_long'
   )
   
   stats::setNames(

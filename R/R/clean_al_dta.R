@@ -58,7 +58,7 @@ build_table = function(al_metadata_raw, al_off_type_raw, season, location){
 # MS771S vs MS771 naming aliases
 
 .normalize_al_plant_id = function(plant_id) {
-  x = gsub(" ", "", plant_id, fixed = TRUE)
+  x = gsub(' ', '', plant_id, fixed = TRUE)
   for (i in seq_along(AL_GENOTYPE_ALIASES)) {
     x = gsub(names(AL_GENOTYPE_ALIASES)[i], AL_GENOTYPE_ALIASES[i], x, fixed = TRUE)
   }

@@ -59,7 +59,7 @@ interpolate_bloom_doy = function(bloom_dta, thresholds = c(bloom1 = 1, bloom5 = 
     dates = c(window_start, dates)
     values = c(0, values)
   }
-  last_i <- length(dates)
+  last_i = length(dates)
   if (dates[last_i] < window_end) {
     dates = c(dates, window_end)
     values = c(values, values[last_i])
@@ -80,7 +80,7 @@ compute_bloom_auc = function(bloom_dta, few_distinct_threshold = 3) {
 
   season = unique(bloom_dta$season)
   if (length(season) != 1) {
-    stop("compute_bloom_auc(): bloom_dta must be a single environment (one season), got: ", paste(season, collapse = ', '))
+    stop('compute_bloom_auc(): bloom_dta must be a single environment , got: ', paste(season, collapse = ', '))
   }
 
   window_start = season_anchor_date(season)
@@ -94,7 +94,7 @@ compute_bloom_auc = function(bloom_dta, few_distinct_threshold = 3) {
       auc_raw_absolute = .trapezoidal_bloom_auc(obs_date, bloom_percent_raw, window_start, window_end),
       auc_corrected_absolute = .trapezoidal_bloom_auc(obs_date, bloom_percent, window_start, window_end),
       n_distinct_bloom_values = n_distinct(bloom_percent),
-      .groups = "drop"
+      .groups = 'drop'
     ) %>%
     mutate(
       auc_raw_percent = auc_raw_absolute / (window_length),

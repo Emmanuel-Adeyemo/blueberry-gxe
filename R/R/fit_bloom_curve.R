@@ -53,7 +53,7 @@ invert_logistic_day = function(Asym, xmid, scal, target){
 # fits independent - no borrowing - logistic curve
 .fit_bloom_independent_one = function(plant_df, min_visits = 4, timeout_secs = 30){
 
-  failed <- list(Asym = NA_real_, xmid = NA_real_, scal = NA_real_, converged = FALSE, bound_pinned = NA)
+  failed = list(Asym = NA_real_, xmid = NA_real_, scal = NA_real_, converged = FALSE, bound_pinned = NA)
 
   if (nrow(plant_df) < min_visits) {
     return(failed)
@@ -118,7 +118,7 @@ fit_bloom_nlme = function(bloom_dta, control = nlme::nlmeControl(maxIter = 300, 
     )
   } else {
     pooled = .estimate_logistic_start_values(df$x, df$bloom_percent)
-    start_vals = c(Asym = pooled[["Asym"]], xmid = pooled[["xmid"]], log_scal = log(pooled[["scal"]]))
+    start_vals = c(Asym = pooled[['Asym']], xmid = pooled[['xmid']], log_scal = log(pooled[['scal']]))
   }
   # start_vals = .estimate_logistic_start_values(df$x, df$bloom_percent)
   fit_a = tryCatch(
@@ -224,7 +224,7 @@ flag_extrapolated_day_estimates = function(doy_table, bloom_dta, buffer_days = 1
 harmonize_bloom_doy_nlme = function(bloom_dta, low = 5, mid = 50, full_frac = 0.95) {
   season = unique(bloom_dta$season)
   if (length(season) != 1){
-    stop('bloom_dta must be a single envt ie one season, got: ', paste(season, collaspe = ", "))
+    stop('bloom_dta must be a single envt ie one season, got: ', paste(season, collaspe = ', '))
   }
 
   fitted_model = fit_bloom_nlme(bloom_dta)

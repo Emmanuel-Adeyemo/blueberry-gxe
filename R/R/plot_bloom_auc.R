@@ -28,7 +28,7 @@ library(tidyr)
 plot_bloom_auc = function(bloom_dta, plant_ids) {
   season = unique(bloom_dta$season)
   if (length(season) != 1) {
-    stop("plot_bloom_auc(): bloom_dta must be a single environment (one season), got: ", paste(season, collapse = ", "))
+    stop('plot_bloom_auc(): bloom_dta must be a single environment (one season), got: ', paste(season, collapse = ', '))
   }
 
   window_start = season_anchor_date(season)
@@ -36,16 +36,16 @@ plot_bloom_auc = function(bloom_dta, plant_ids) {
 
   selected = bloom_dta %>% filter(PlantID %in% plant_ids)
   if (nrow(selected) == 0) {
-    stop("plot_bloom_auc(): none of the requested plant_ids were found in bloom_dta.")
+    stop('plot_bloom_auc(): none of the requested plant_ids were found in bloom_dta.')
   }
 
   point_seq = selected %>%
     group_by(PlantID) %>%
     group_modify(function(rows, ...) {
       raw_seq = .bloom_auc_point_sequence(rows$obs_date, rows$bloom_percent_raw, window_start, window_end) %>%
-        mutate(series = "Raw (frost-affected)")
+        mutate(series = 'Raw (frost-affected)')
       corrected_seq = .bloom_auc_point_sequence(rows$obs_date, rows$bloom_percent, window_start, window_end) %>%
-        mutate(series = "Corrected (carry-forward)")
+        mutate(series = 'Corrected (carry-forward)')
       bind_rows(raw_seq, corrected_seq)
     }) %>%
     ungroup()
@@ -60,11 +60,11 @@ plot_bloom_auc = function(bloom_dta, plant_ids) {
     )
 
   ggplot(point_seq, aes(x = obs_date, y = bloom_percent, fill = series)) +
-    geom_area(position = "identity", alpha = 0.35, outline.type = "upper") +
+    geom_area(position = 'identity', alpha = 0.35, outline.type = 'upper') +
     geom_line(aes(color = series), linewidth = 0.9) +
     facet_wrap(~PlantID, ncol = 2) +
-    scale_fill_manual(values = c("Raw (frost-affected)" = "#D55E00", "Corrected (carry-forward)" = "#0072B2")) +
-    scale_color_manual(values = c("Raw (frost-affected)" = "#D55E00", "Corrected (carry-forward)" = "#0072B2")) +
+    scale_fill_manual(values = c('Raw (frost-affected)' = '#D55E00', 'Corrected (carry-forward)' = '#0072B2')) +
+    scale_color_manual(values = c('Raw (frost-affected)' = '#D55E00', 'Corrected (carry-forward)' = '#0072B2')) +
     labs(
       title = 'Bloom progression and area under the curve: raw vs. frost-corrected',
       x = 'Date', y = 'Bloom (%)', fill = NULL, color = NULL

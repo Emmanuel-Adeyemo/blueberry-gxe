@@ -13,7 +13,7 @@ library(tibble)
 
 # resolve name, MS and UGA has this
 .PEDIGREE_OP = c(
-  "op", "open pollination", "open-pollination", "open pollinated"
+  'op', 'open pollination', 'open-pollination', 'open pollinated'
 )
 
 # lines with no pedigree info. this are diff from those with open-pollination
@@ -42,7 +42,7 @@ library(tibble)
   }
   depth_before_pos = function(p) if (p <= 1) 0L else depth_after[p - 1]
 
-  is_top_level = vapply(locs[, "start"], function(p) depth_before_pos(p) == 0L, logical(1))
+  is_top_level = vapply(locs[, 'start'], function(p) depth_before_pos(p) == 0L, logical(1))
   locs[is_top_level, , drop = FALSE]
 }
 
@@ -99,7 +99,7 @@ library(tibble)
   }
 
   if (is.na(s) || str_trim(s) == "") {
-    return(blank("missing"))
+    return(blank('missing'))
   }
   s = str_trim(s)
 
@@ -111,7 +111,7 @@ library(tibble)
     return(blank('unknown_pedigree'))
   }
 
-  # unwrap srings with parenthesis eg '(FL01-26/Windsor)'. This is important before anyoher pattern matching
+  # unwrap srings with parenthesis eg '(FL01-26/Windsor)'. This is important before anyother pattern matching
   s = .unwrap_if_fully_wrapped(s)
  
    # self pollination
@@ -121,7 +121,7 @@ library(tibble)
     return(tibble(
       female_parent = parent, male_parent = parent,
       female_parent_note = NA_character_, male_parent_note = NA_character_,
-      parse_status = "self_pollination"
+      parse_status = 'self_pollination'
     ))
   }
 
@@ -129,28 +129,28 @@ library(tibble)
   # flag it till I figure out what to do
   # TODO: SEE FLAGED
   looks_like_species_name = str_detect(s, regex("\\bhybrid\\b|\\bcomplex\\b", ignore_case = TRUE)) &&
-    str_detect(s, "\\b[A-Z]\\.\\s") # eg spp name abbr like V. darrowii
+    str_detect(s, '\\b[A-Z]\\.\\s') # eg spp name abbr like V. darrowii
   if (looks_like_species_name) {
-    return(blank("unparseable_description"))
+    return(blank('unparseable_description'))
   }
 
   # eg TX52 - prefer pick is '/', to prevent incorrectly spliting T and 52 using x
   # flag as 'ambiguous_unparsed' rather than guess
   x_delim_pattern <- regex("\\s[x\u00d7]\\s", ignore_case = TRUE)
 
-  slash_matches = .top_level_matches(s, fixed("/"))
+  slash_matches = .top_level_matches(s, fixed('/'))
   x_matches = .top_level_matches(s, x_delim_pattern) # regex("\\sx\\s", ignore_case = TRUE))
 
   if (nrow(slash_matches) == 1) {
     loc = slash_matches[1, ]
     # parts = str_split(s, fixed("/"), n = 2)[[1]]
-    delimiter_status = "parsed_slash"
+    delimiter_status = 'parsed_slash'
   } else if (nrow(slash_matches) == 0 && nrow(x_matches) == 1) {
     loc = x_matches[1, ]
     # parts = str_split(s, regex("\\sx\\s", ignore_case = TRUE), n = 2)[[1]]
-    delimiter_status = "parsed_x_delimiter"
+    delimiter_status = 'parsed_x_delimiter'
   } else {
-    return(blank("ambiguous_unparsed"))
+    return(blank('ambiguous_unparsed'))
   }
 
   parts = c(str_sub(s, 1, loc[['start']] - 1), str_sub(s, loc[['end']] + 1))
@@ -170,9 +170,9 @@ library(tibble)
   male_parent = if (.is_open_pollination(m$clean)) NA_character_ else m$clean
 
   status = if (.is_open_pollination(f$clean) || .is_open_pollination(m$clean)) {
-    paste0(delimiter_status, "_open_pollination")
+    paste0(delimiter_status, '_open_pollination')
   } else if (!is.na(f$note) || !is.na(m$note)) {
-    paste0(delimiter_status, "_nested_generation")
+    paste0(delimiter_status, '_nested_generation')
   } else {
     delimiter_status
   }
@@ -267,7 +267,7 @@ build_synonym_groups = function(pairs) {
     group_by(group_root) %>%
     mutate(identifier = sort(alias)[1]) %>%
     ungroup() %>%
-    dplyr::select("alias", "identifier")
+    dplyr::select('alias', 'identifier')
 }
 
 # rewrite character vec to identifier name, ie based on synonym_map. values not present in map remain unchanged
@@ -296,20 +296,20 @@ combine_and_resolve_pedigree = function(uf_pedigree,
   
   # these are already structured
   already_structured = bind_rows(
-    uf_pedigree %>% dplyr::select("source", "line_id", "female_parent", "male_parent"),
-    ncsu_pedigree %>% dplyr::select("source", "line_id", "female_parent", "male_parent")
+    uf_pedigree %>% dplyr::select('source', 'line_id', 'female_parent', 'male_parent'),
+    ncsu_pedigree %>% dplyr::select('source', 'line_id', 'female_parent', 'male_parent')
   ) %>%
     mutate(
       pedigree_raw = NA_character_,
       female_parent_note = NA_character_,
       male_parent_note = NA_character_,
-      parse_status = "already_structured"
+      parse_status = 'already_structured'
     )
 
     # for the problem children
   parse_source = function(dta_table) {
     bind_cols(
-      dta_table %>% dplyr::select("source", "line_id", pedigree_raw),
+      dta_table %>% dplyr::select('source', 'line_id', pedigree_raw),
       parse_pedigree_string(dta_table$pedigree_raw)
     )
   }

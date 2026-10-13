@@ -52,6 +52,8 @@ build_per_trial_qc_dta = function(yield_dta, bloom_dta){
     results$auc_corrected_percent = fit_single_trial_qc(auc_trial_dta, 'auc_corrected_percent')
 }
   
+  # dta is for my own debugging, to explore the dta that goes into the model, not a tar_target output
+
   list(
     dta = dta,
     results = bind_rows(results)
