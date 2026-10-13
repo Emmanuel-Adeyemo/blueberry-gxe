@@ -18,6 +18,19 @@ stage01_targets = list(
   ),
   tar_target(
     pedigree_synonym_map, pedigree_resolved$synonym_map
+  ),
+
+  # read this from stage0
+  # tar_read(trial_genotypes),
+  # get matches
+  tar_target(
+    genotype_matches, match_trial_genotypes(
+      trial_genotypes, pedigree_processed
+    )
+  ),
+  # do pedigree resolution of genotype matches
+  tar_target(trial_genotypes_pedigree, 
+    reconcile_trial_genotype_pedigree(genotype_matches, pedigree_processed)
   )
 )
 

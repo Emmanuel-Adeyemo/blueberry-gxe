@@ -1,3 +1,4 @@
+# 08/28/2026
 # AL pheno
 # Single rda file with 8 trial dta frames <LOC><YY>.ori + MetaData + OffID
 
@@ -85,6 +86,20 @@ stage00_targets = list(
     'data/raw/al/OriginalData.rda',
     format='file'
   ),
+
+  # NC and FL added 10/03
+  tar_target(
+    nc_path25, 'data/raw/nc/2025NCSUData_updated_09282026.xlsx', format = 'file'
+  ),
+
+  tar_target(nc_path24, 'data/raw/nc/2024 NCSU Data.xlsx', format = 'file'),
+
+  tar_target(fl_path25, 'data/raw/fl/UF 2025.xlsx', format = 'file'),
+
+  tar_target(fl_path24_yld, 'data/raw/fl/UF 2024 yield.xlsx', format = 'file'),
+
+  tar_target(fl_path24_bloom, 'data/raw/fl/Bloom_UF_2024.xlsx', format = 'file'),
+
   tar_target(al_rda, read_al_rda(al_rda_file)),
   
   tar_target(al_metadata, read_al_metadata(al_rda)),
@@ -92,18 +107,19 @@ stage00_targets = list(
   
   tar_target(al_all_dta, ingest_all_al_dta(al_rda)),
   tar_target(al_bloom_long, al_all_dta$bloom_long),
-  tar_target(al_berry_long, al_all_dta$berry_percent_long),
-  tar_target(al_frost_long, al_all_dta$frost_percent_long),
   tar_target(al_yield_long, al_all_dta$yield_long),
-  tar_target(al_health_score_long, al_all_dta$health_score_long),
-  tar_target(al_plant_height_long, al_all_dta$plant_height_long),
-  tar_target(al_notes_long, al_all_dta$notes_long),
-  tar_target(avg_berry_weight_long, al_all_dta$avg_berry_weight_long),
-  
-  tar_target(firmness_long, al_all_dta$firmness_long),
-  tar_target(brix_long, al_all_dta$brix_long),
-  tar_target(ta_long, al_all_dta$ta_long),
-  tar_target(berry_diameter_long, al_all_dta$berry_diameter_long)
+
+  # nc
+  tar_target(nc_all_dta, ingest_nc(nc_path25, nc_path24)),
+  tar_target(nc_yield, nc_all_dta$yield),
+  tar_target(nc_bloom, nc_all_dta$bloom),
+
+  # fl
+  tar_target(fl_all_dta, ingest_fl(fl_path25, fl_path24_yld, fl_path24_bloom)),
+  tar_target(fl_yield, fl_all_dta$yield),
+  tar_target(fl_bloom, fl_all_dta$bloom),
+
+  tar_target(trial_genotypes, get_unique_genotypes(al_metadata))
   
 )
 

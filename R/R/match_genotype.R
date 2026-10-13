@@ -1,4 +1,4 @@
-# R/R
+# 09/02/2026
 # match external genotypes against processed pedigree from stage01, builds matching keys that survives formatting noise
 # two fixes: 1. normalize key types of pure formatting noise eg whitespaces, apostrophes. 2. Fix UF's convention that omits UF prefix.
 # TODO - in the process_pedigree.R - figure out the fuzzy matching e.g. "Springhigh" vs "Springhieght" or cross-source disagreement (e.g. Gumbo's
@@ -51,15 +51,15 @@ build_match_keys = function(names, sources = NA_character_) {
 
 
 # do matching
-match_trial_genotypes = function(trail_genotypes, processed_pedigree) {
+match_trial_genotypes = function(trial_genotypes, processed_pedigree) {
   trial_keys = build_match_keys(trial_genotypes) %>%
-    select('trial_genotype' = 'name', 'match_key')
+    dplyr::select('trial_genotype' = 'name', 'match_key')
 
   pedigree_keys = build_match_keys(processed_pedigree$line_id, processed_pedigree$source) %>%
-    select('line_id' = 'name', 'source', 'match_key', 'key_type')
+    dplyr::select('line_id' = 'name', 'source', 'match_key', 'key_type')
 
   trial_keys %>% 
     inner_join(pedigree_keys, by = 'match_key', relationship = 'many-to-many') %>% 
-    distinct(.data$trial_genotype, .data$line_id, .data$source, .data$key_type) %>%
-    arrange(.data$trial_genotype, .data$key_type)
+    distinct(trial_genotype, line_id, source, key_type) %>%
+    arrange(trial_genotype, key_type)
 }
