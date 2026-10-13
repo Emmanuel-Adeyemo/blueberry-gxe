@@ -1,11 +1,11 @@
-# Southern Highbush Blueberry GxE Modeling
+## Southern Highbush Blueberry GxE with Factor Analytic Model
 
 Multi-environment trial (MET) analysis for yield and bloom-timing traits
 across AL, FL, NC breeding-program materials, plus a bloom-date forecasting
-service.
+service. 
 
 
-## Layout
+### Layout
 
 ```
 R/pipeline/         targets pipeline stages (stage00 ... stage09)
@@ -16,7 +16,7 @@ data/processed/     output, processed data
 .github/workflows/  CI: renv restore, pipeline test
 ```
 
-## Running the R pipeline
+### Running the R pipeline
 
 ```r
 # one-time setup
@@ -40,7 +40,9 @@ targets::tar_visnetwork()
 Each stage is defined in `R/pipeline/stageNN_*.R` and wired together in
 `R/pipeline/_targets.R`. Stages are numbered in dependency order.
 
-## Stages
+### Stages
+
+```
 - stage00_dta_ingestion: takes al, nc, & fl phenotypic and metadta
 - stage01_pedigree_process: takes pedigree from multiple sources for processing
 - stage02_marker_ingestion: ingest marker dta
@@ -53,15 +55,14 @@ Each stage is defined in `R/pipeline/stageNN_*.R` and wired together in
 - stage07c_fa_auc_model: fa model and fast for bloom auc.
 - stage08_bloom_rxn_norm: chill/heat accummulation-based reaction norm.
 - stage09_validation: leave-one-year-out validation for the forecasting service, mimics deployment scenario.
+```
 
 
-
-## Status
-
-10/11/2026: FA models completed with pedigree data (Stages 00 - 07 completed).
-Still to complete: FA models with markers, move FW, AMMI, GGE into pipeline, reaction norm with chilling hrs, and validate forcasting before finishing with service deployment.
-
-
+### Status
+```
+- 10/11/2026: FA models completed with pedigree data (Stages 00 - 07 completed).
+- Still to complete: FA models with markers, move FW, AMMI, GGE into pipeline, reaction norm with chilling hrs, and validate forcasting before finishing with service deployment.
+```
 
 ```r
 # 1. from repo root, install deps once
