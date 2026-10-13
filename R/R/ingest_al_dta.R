@@ -42,7 +42,7 @@ AL_TRAIT_PREFIXES = c(
 
 AL_ID_COLS = c(
   'PlantID', 'BlockNo', 'SubplotNo', 'RepNo', 'Genotype', 'Ecotype',
-  "HealthSummary", 'PlantHeightSummary', 'Harvested"'
+  "HealthSummary", 'PlantHeightSummary', 'Harvested'
 )
 
 
