@@ -43,8 +43,8 @@ Each stage is defined in `R/pipeline/stageNN_*.R` and wired together in
 ### Stages
 
 ```
-- stage00_dta_ingestion: takes al, nc, & fl phenotypic and metadta
-- stage01_pedigree_process: takes pedigree from multiple sources for processing
+- stage01_dta_ingestion: takes al, nc, & fl phenotypic and metadta
+- stage02_pedigree_process: takes pedigree from multiple sources for processing
 - stage02_marker_ingestion: ingest marker dta
 - stage03_cleaning: clean pheno dta with metadata file - also clean names.
 - stage04_bloom_harmonization: gets the dates for bloom5, bloom50, bloom100, bloom_duration, and auc
@@ -53,15 +53,18 @@ Each stage is defined in `R/pipeline/stageNN_*.R` and wired together in
 - stage07_fa_model: fa model for yield with asreml and sommer, includes diagnostic layer with post fa FAST (Smith & Cullis, 2018), produce plots.
 - stage07b_fa_bloom_model: fa model and fast for bloom traits
 - stage07c_fa_auc_model: fa model and fast for bloom auc.
-- stage08_bloom_rxn_norm: chill/heat accummulation-based reaction norm.
+- stage07d_fa_plant_height: fa model and fast for plant height.
+- stage07e_fa_quality: fa model and fast for quality traits.
+- stage08_fa_fw_ammi: post fa fw, ammi analysis.
 - stage09_validation: leave-one-year-out validation for the forecasting service, mimics deployment scenario.
 ```
 
 
 ### Status
 ```
-- 10/11/2026: FA models completed with pedigree data (Stages 00 - 07 completed).
-- Still to complete: FA models with markers, move FW, AMMI, GGE into pipeline, reaction norm with chilling hrs, and validate forcasting before finishing with service deployment.
+- 10/11/2026: FA models completed with pedigree data (Stages 01 - 07 completed).
+- 11/10/2026: FA models completed with genomic relationship matrix for yield, bloom, and quality traits.
+- Still to complete: move FW, AMMI, GGE into pipeline, and validate forcasting before finishing with service deployment.
 ```
 
 ```r
