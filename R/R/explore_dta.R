@@ -58,7 +58,7 @@ summarise_missingness = function(data, trait_cols, group_cols) {
       names_to = c('trait', '.value'),
       names_sep = '_'
     ) %>%
-    mutate(pct_missing = 100 * .data$n_missing / .data$n_total)
+    mutate(pct_missing = 100 * (n_missing / n_total))
 }
 
 

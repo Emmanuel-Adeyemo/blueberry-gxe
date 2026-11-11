@@ -6,17 +6,9 @@ library(dplyr)
 # from Sushan/Sakshi's script
 # Chill: Oct1 - Feb 28
 # Heat: Jan 1 - Feb 28
+# Both windows are expressed as day-offsets from season_anchor_date() 
 FIXED_CHILL_WINDOW = c(start = 30, end = 180)
 FIXED_HEAT_WINDOW = c(start = 122, end = 180)
-
-
-mmdd_to_days_since_anchor = function(mmdd, season) {
-  month = mmdd %/% 100
-  day = mmdd %% 100
-  year = ifelse(month >= 9, season - 1L, season)
-  real_date = as.Date(paste(year, month, day, sep = "-"))
-  as.numeric(real_date - season_anchor_date(season))
-}
 
 
 compute_window_covariate = function(daily_chill_table, season, start_offset, end_offset) {
@@ -42,27 +34,16 @@ compute_fixed_window_covariate = function(daily_chill_table, season) {
 }
 
 
+# 10/29
+get_available_seasons = function(weather_prepared, location, candidate_seasons) {
+  obs_date = as.Date(paste(weather_prepared$Year, weather_prepared$Month, weather_prepared$Day, sep = "-"))
+  data_min = min(obs_date, na.rm = TRUE)
+  data_max = max(obs_date, na.rm = TRUE)
 
-compute_discovered_window_covariate = function(daily_chill_table, season, critical_window) {
-  .sum_metric_over_stretches = function(stretches, metric_col) {
-    if (nrow(stretches) == 0) {
-      return(NA_real_)
-    }
-    values = vapply(seq_len(nrow(stretches)), function(i) {
-      start_offset = mmdd_to_days_since_anchor(stretches$start_Date[i], season)
-      end_offset = mmdd_to_days_since_anchor(stretches$end_Date[i], season)
-      cov = compute_window_covariate(daily_chill_table, season, start_offset, end_offset)
-      cov[[metric_col]]
-    }, numeric(1))
-    sum(values)
-  }
+  eligible = Filter(function(season) {
+    anchor = season_anchor_date(season)
+    data_min <= anchor && data_max >= (anchor + 211)
+  }, candidate_seasons)
 
-  chill_stretches = critical_window %>% filter(.data$Type == "Chill")
-  heat_stretches = critical_window %>% filter(.data$Type == "Heat")
-
-  tibble(
-    season = season,
-    Chill_Portions_sum = .sum_metric_over_stretches(chill_stretches, "Chill_Portions_sum"),
-    GDH_sum = .sum_metric_over_stretches(heat_stretches, "GDH_sum")
-  )
+  tibble(location = location, season = eligible)
 }

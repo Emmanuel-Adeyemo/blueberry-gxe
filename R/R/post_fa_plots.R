@@ -30,7 +30,7 @@ plot_corr = function(corr_mat, specs){
 
 plot_hc = function(corr_mat, specs){
   dist_mat = as.dist(1 - corr_mat)
-  hc = hclust(dist_mat, method = 'average')
+  hc = hclust(dist_mat, method = 'ward.D2')
   min_y = -0.25 * max(hc$height)
   
   fviz_dend(
@@ -47,7 +47,7 @@ plot_hc = function(corr_mat, specs){
 
 
 # upper left: high performer and stable
-plot_op_rmsd = function(stab, label_n = 30, specs) {
+plot_op_rmsd = function(stab, label_n = 41, specs) {
 
   t = stab$table
   grey_lab = grep('^tested in', unique(t$group), value = TRUE)
@@ -75,6 +75,44 @@ plot_op_rmsd = function(stab, label_n = 30, specs) {
                   check_overlap = TRUE, show.legend = FALSE)
   }
 }
+
+
+# 11/09
+# op vs rmsd for selection index
+
+plot_selection_index = function(index_tab, label_n = 41) {
+  idx_cut  = mean(index_tab$Index)
+  rmsd_cut = median(index_tab$RMSD_index, na.rm = TRUE)
+
+  lab = index_tab %>% slice_max(Index, n = label_n) %>%
+    bind_rows(index_tab %>% filter(group == "Above average & stable")) %>%
+    distinct(Genotype, .keep_all = TRUE)
+
+  p = ggplot(index_tab, aes(RMSD_index, Index, colour = group)) +
+    geom_point(alpha = 0.8) +
+    scale_colour_manual(values = group_cols, name = NULL) +
+    geom_hline(yintercept = idx_cut, linetype = 'dashed') +
+    geom_vline(xintercept = rmsd_cut, linetype = 'dashed') +
+    labs(
+      title = 'Multi-trait selection index: overall performance vs. stability',
+      subtitle = 'Dashed lines = (y: mean Index, x: median RMSD_index).',
+      x = 'RMSD index (lower = more stable across traits)',
+      y = 'Selection index (higher = better)',
+      colour = NULL
+    ) +
+    theme_minimal()
+
+  if (requireNamespace("ggrepel", quietly = TRUE)) {
+    p + ggrepel::geom_text_repel(data = lab, aes(label = Genotype), size = 3,
+                                 show.legend = FALSE, max.overlaps = 30)
+  } else {
+    p + geom_text(data = lab, aes(label = Genotype), size = 3, vjust = -1,
+                  check_overlap = TRUE, show.legend = FALSE)
+  }
+}
+
+
+
 
 # gxe blups heatmap
 plot_blup_heatmap = function(blup_long, stab, tested, specs) {
@@ -196,7 +234,7 @@ plot_uniplot = function(loadings, cov, specs, pcs = c(1, 2)) {
 
 
 # testing normal/frost years
-plot_group_means = function(blup_long, env_groups, specs, tested = NULL, label_n = 30) {
+plot_group_means = function(blup_long, env_groups, specs, tested = NULL, label_n = 41) {
 
   stopifnot(length(env_groups) >= 2)
   nm = names(env_groups)[1:2]
@@ -230,54 +268,3 @@ plot_group_means = function(blup_long, env_groups, specs, tested = NULL, label_n
   else p + geom_text(data = lab, aes(label = Genotype), size = 3, vjust = -0.8, check_overlap = TRUE)
 }
 
-
-plot_trio_pair_survival = function(pair_summary, specs) {
-
-  d = pair_summary %>%
-    pivot_longer(c(cor_baseline_with_all3, cor_with_third_dropped),
-                 names_to = "which", values_to = "r") %>%
-    mutate(which = recode(which, cor_baseline_with_all3 = "all 3 in model", cor_with_third_dropped = "3rd dropped"))
-  
-  ggplot(d, aes(which, r, group = interaction(pair, order), colour = pair)) +
-    geom_hline(yintercept = 0, colour = "grey80") +
-    geom_line() + geom_point(size = 2) +
-    facet_wrap(~order) +
-    labs(x = NULL, y = "rg of the remaining pair",
-         title = specs)+
-    theme_minimal()
-}
-
-
-plot_predictive_ability = function(pred_tab, specs) {
-  env_order = pred_tab %>%
-    group_by(dropped_env) %>%
-    summarise(m = mean(r_p, na.rm = TRUE), .groups = "drop") %>%
-    arrange(desc(m)) %>% pull(dropped_env)
- 
-  d = pred_tab %>%
-    mutate(dropped_env = factor(dropped_env, levels = env_order)) %>%
-    tidyr::pivot_longer(c(r_p, nrmse), names_to = "metric", values_to = "value") %>%
-    mutate(metric = recode(metric, r_p = "predictive ability (r_p)", nrmse = "NRMSE (rmse / env sd)"))
- 
-  ggplot(d, aes(dropped_env, value, fill = metric)) +
-    geom_col(show.legend = FALSE, width = 0.7) +
-    geom_hline(data = data.frame(metric = "NRMSE (rmse / env sd)", yint = 1),
-               aes(yintercept = yint), linetype = 2, colour = "grey40") +
-    facet_grid(metric ~ order, scales = "free_y") +
-    labs(x = NULL, y = NULL,
-         title = glue("Predictive-ability LOEO ({specs})"),
-         subtitle = paste("dashed line = NRMSE of 1 (Normalized RMSE)")) +
-    theme_minimal() +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
-}
-
-
-
-plot_watch_genotype_tracking = function(watch_summary) {
-  ggplot(watch_summary, aes(config, OP, colour = Genotype, group = Genotype)) +
-    geom_line() + geom_point(aes(size = n_tested)) +
-    facet_wrap(~order) +
-    theme_minimal() + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-    labs(title = "NC5289 / MS2162 / SanJoaquin: OP across LOEO configs",
-         x = NULL)
-}

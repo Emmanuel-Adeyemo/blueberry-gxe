@@ -5,8 +5,8 @@ library(AGHmatrix)
 
 
 # for later
-build_genomic_g_matrix = function(snp_matrix, ploidy = 4, method = 'VanRaden', missing_value = -999) {
-  Gmatrix(SNPmatrix = snp_matrix, method = method, ploidy = ploidy, missingValue = missing_value)
+build_genomic_g_matrix = function(snp_matrix, ploidy = 4, method = 'VanRaden', missing_value = NA, maf = 0.01) {
+  Gmatrix(SNPmatrix = snp_matrix, method = method, ploidy = ploidy, missingValue = missing_value, maf = maf)
 }
 
 
@@ -14,6 +14,18 @@ build_pedigree_a_matrix = function(ped_dta, ploidy = 4, w = 0){
 
   ped_dta = ped_dta %>% rename(Ind = NAME, Par1 = FEMALE, Par2 = MALE)
   Amatrix(data = as.data.frame(ped_dta), ploidy = ploidy)
+}
+
+
+# 10/24 -- genomic dominance relationship matrix 
+build_genomic_d_matrix = function(snp_matrix, ploidy = 4, method = 'Endelman', missing_value = NA, maf = 0.01) {
+  Gmatrix(SNPmatrix = snp_matrix, method = method, ploidy = ploidy, missingValue = missing_value, maf = maf)
+}
+
+
+# standard diagonal bending for g_matrix that could not invert reliably
+bend_G = function(G, w = 1e-3) {
+  (1 - w) * G + w * diag(diag(G))
 }
 
 # mat is A or G mat
@@ -30,5 +42,3 @@ get_a_diag = function(mat, keep_genotypes){
   
   setNames(diag(mat), rownames(mat))[keep_genotypes]
 }
-
-

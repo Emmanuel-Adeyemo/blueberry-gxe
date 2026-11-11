@@ -27,7 +27,7 @@ clean_fl_genotypes = function(dta, al_dta) {
 
   changed = before != dta$genotype
   if (any(changed)) {
-    changes <- unique(paste0(before[changed], " -> ", dta$genotype[changed]))
+    changes = unique(paste0(before[changed], " -> ", dta$genotype[changed]))
     message("clean_fl_genotypes(): resolved ", length(changes), " names: ", paste(changes, collapse = ", "))
   }
   dta %>% filter(genotype %in% unique_genotypes)

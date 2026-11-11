@@ -32,7 +32,7 @@ library(tibble)
   group_root = vapply(all_keys, function(k) .uf_find(uf, k), character(1))
   keys = keys %>% mutate(group_id = group_root[match(match_key, all_keys)])
 
-  # a source "supports" a group if ANY of its rows landed in it
+  
   group_support = keys %>%
     distinct(source, group_id) %>%
     count(group_id, name = "n_sources_agreeing") %>%
@@ -80,12 +80,8 @@ library(tibble)
 
 
 
-# collape output of match_trial_genotype() and output of stage01 pedigree table into one resolved row per genotype.
-# joins in female / male parent info per line_id and source. Then resolves disagreements independently for female_parent 
-# and male_parent using .pick_identifier_value()
-
 #' @param genotype_matches - output of match_trial_genotype()
-#' @param processed_pedigree - output of stage01
+#' @param processed_pedigree - output of stage02
 
 reconcile_trial_genotype_pedigree = function(genotype_matches, processed_pedigree) {
   joined = genotype_matches %>%

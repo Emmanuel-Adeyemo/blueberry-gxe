@@ -15,7 +15,7 @@ normalize_nc_genotype = function(genotype) {
 }
 
 
-clean_nc_genotypes = function(dta, al_dta) {
+clean_nc_genotypes = function(dta, al_dta, nc_meta = NULL) {
   before = dta$genotype
   dta$genotype = normalize_nc_genotype(before)
 
@@ -26,5 +26,7 @@ clean_nc_genotypes = function(dta, al_dta) {
     changes = unique(paste0(before[changed], " -> ", dta$genotype[changed]))
     message("clean_nc_genotypes(): resolved ", length(changes), " alias(es): ", paste(changes, collapse = ", "))
   }
-  dta %>% filter(genotype %in% unique_genotypes)
+  # added subpot filter 10/12
+  dta = dta %>% filter(genotype %in% unique_genotypes) %>% filter(!subplot %in% c(4:6))
+  if(!is.null(nc_meta)) dta %>% inner_join(nc_meta, by = c('plot', 'genotype')) %>% mutate(Age = season - planting_year) %>% dplyr::select(-planting_year) else dta
 }

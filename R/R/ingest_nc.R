@@ -38,6 +38,15 @@ read_nc_yld_2025_f2_raw = function(path){
   .read_excel_at_header_row(path, sheet = 'F2 Yield', header_row = 2)
 }
 
+# META
+read_nc_metadata = function(path){
+  read_excel(path, sheet = 'planting dates')
+}
+
+process_meta = function(raw){
+  raw %>% dplyr::select(plot, genotype = name, planting_year)
+}
+
 
 # normalize raw yld into common schema
 # 2025
@@ -63,7 +72,7 @@ process_nc_yld_2024_h2 = function(raw) {
       location = 'NC',
       site = as.character(Field),
       plot = as.character(Plot),
-      subplot = as.character(Plant),
+      subplot = as.character(Bush),
       genotype = as.character(Name),
       y = as.numeric(.data$`Total g/Plant`),
       # kept
@@ -79,7 +88,7 @@ process_nc_yld_2024_f2 = function(raw) {
       location = 'NC',
       site = as.character(Field),
       plot = as.character(Plot),
-      subplot = as.character(Plant),
+      subplot = as.character(Bush),
       genotype = as.character(Name),
       y = as.numeric(.data$`Total g/Plant`)
     )
@@ -150,6 +159,8 @@ ingest_nc = function(path2025, path2024){
   yld_2024_h2 = process_nc_yld_2024_h2(read_nc_yld_2024_h2_raw(path2024))
   yld_2024_f2 = process_nc_yld_2024_f2(read_nc_yld_2025_f2_raw(path2024))
 
+  meta = process_meta(read_nc_metadata(path2025))
+
   plot_site_map_2025 = derive_nc_plot_site_map_2025(yld_2025) # builds plot - site for bloom data
   bloom_2025 = process_nc_bloom_2025(read_nc_bloom_2025_raw(path2025), plot_site_map_2025)
   bloom_2024 = process_nc_bloom_2024(read_nc_bloom_2024_raw(path2024))
@@ -159,6 +170,7 @@ ingest_nc = function(path2025, path2024){
       yld_2025, yld_2024_h2 %>% dplyr::select(-'yld_note'),
       yld_2024_f2
     ),
-    bloom = bind_rows(bloom_2025, bloom_2024)
+    bloom = bind_rows(bloom_2025, bloom_2024),
+    meta = meta
   )
 }
