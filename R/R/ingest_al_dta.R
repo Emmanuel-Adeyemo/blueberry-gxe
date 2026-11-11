@@ -5,18 +5,18 @@
 # interpolation used in the legacy script
 
 # 
-# EV23.ori <- read_csv('Data/EV23_071526.csv')
-# EV24.ori <- read_csv('Data/EV24_071526.csv')
-# EV25.ori <- read_csv('Data/EV25_071526.csv')
-# EV26.ori <- read_csv('Data/EV26_071526.csv')
+# EV23.ori = read_csv('Data/EV23_071526.csv')
+# EV24.ori = read_csv('Data/EV24_071526.csv')
+# EV25.ori = read_csv('Data/EV25_071526.csv')
+# EV26.ori = read_csv('Data/EV26_071526.csv')
 # 
-# BW23.ori <- read_csv('Data/BW23_071526.csv')
-# BW24.ori <- read_csv('Data/BW24_071526.csv')
-# BW25.ori <- read_csv('Data/BW25_071526.csv')
-# BW26.ori <- read_csv('Data/BW26_071526.csv')
+# BW23.ori = read_csv('Data/BW23_071526.csv')
+# BW24.ori = read_csv('Data/BW24_071526.csv')
+# BW25.ori = read_csv('Data/BW25_071526.csv')
+# BW26.ori = read_csv('Data/BW26_071526.csv')
 # 
-# OffID <- read_csv('Data/OffType.csv')$PlantID
-# MetaData <- read_csv("'Data/MetaData.csv')
+# OffID = read_csv('Data/OffType.csv')$PlantID
+# MetaData = read_csv("'Data/MetaData.csv')
 # 
 # save(EV23.ori, EV24.ori, EV25.ori, EV26.ori,
 #      BW23.ori, BW24.ori, BW25.ori, BW26.ori, # typo here. Changed EV26.ori (appeared twice) to BW26.ori
@@ -33,9 +33,14 @@ library(tidyr)
 
 
 AL_TRAIT_PREFIXES = c(
-  bloom_percent = 'Bloom%_', 
-  yield = 'Yield_'
-  
+  bloom_percent = 'Bloom%_',
+  yield = 'Yield_',
+  plant_height = "PlantHeight_", 
+  notes = "Notes_", # free text 
+  avg_berry_weight = "AverageBerryWeight_",
+  firmness = "Firmness_",
+  brix = "Brix_",
+  ta = "TA_"
 )
 
 
@@ -222,17 +227,42 @@ tidy_single_envt = function(raw, season, location) {
   bloom_long = .al_trait_wide_to_long(
     raw, id_cols, AL_TRAIT_PREFIXES[['bloom_percent']], 'bloom_percent', season, location
   )
-  
+
   yield_long = .al_trait_wide_to_long(
     raw, id_cols, AL_TRAIT_PREFIXES[['yield']], 'yield', season, location
   )
-  
-  
-  list( 
+
+  # 10/16 added quality traits 
+  plant_height_long = .al_trait_wide_to_long(
+    raw, id_cols, AL_TRAIT_PREFIXES[['plant_height']], 'plant_height', season, location
+  )
+
+  avg_berry_weight_long = .al_trait_wide_to_long(
+    raw, id_cols, AL_TRAIT_PREFIXES[['avg_berry_weight']], 'avg_berry_weight', season, location
+  )
+
+  firmness_long = .al_trait_wide_to_long(
+    raw, id_cols, AL_TRAIT_PREFIXES[['firmness']], 'firmness', season, location
+  )
+
+  brix_long = .al_trait_wide_to_long(
+    raw, id_cols, AL_TRAIT_PREFIXES[['brix']], 'brix', season, location
+  )
+
+  ta_long = .al_trait_wide_to_long(
+    raw, id_cols, AL_TRAIT_PREFIXES[['ta']], 'ta', season, location
+  )
+
+  list(
     bloom_long = bloom_long,
-    yield_long = yield_long
+    yield_long = yield_long,
+    plant_height_long = plant_height_long,
+    avg_berry_weight_long = avg_berry_weight_long,
+    firmness_long = firmness_long,
+    brix_long = brix_long,
+    ta_long = ta_long
     )
-  
+
 }
 
 
@@ -256,7 +286,8 @@ ingest_all_al_dta = function(rda_file){
   )
   
   table_names = c(
-    'bloom_long', 'yield_long'
+    'bloom_long', 'yield_long',
+    'plant_height_long', 'avg_berry_weight_long', 'firmness_long', 'brix_long', 'ta_long'
   )
   
   stats::setNames(

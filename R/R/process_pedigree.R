@@ -280,12 +280,8 @@ apply_synonym_map = function(x, synonym_map) {
 }
 
 
-# Workflow entry - combines all six ped files into one parsed, synonym processed file
-# input1: uf_pedigree, ncsu_pedigree - already-structured stage00 tables
-#   (source, line_id, female_parent, male_parent, ...)
-# input2: uga_crosses_pedigree, uga_ancestors_pedigree, ms_usda_pedigree,
-#   shb_ebrahiem_pedigree - unparsed  stage00 tables (source, line_id,
-#   pedigree_raw, ...)
+# entry point - combines all six ped files into one parsed processed file
+#' @param - uf_pedigree, ncsu_pedigree, uga_crosses_pedigree, uga_ancestors_pedigree, ms_usda_pedigree, shb_ebrahiem_pedigree
 
 combine_and_resolve_pedigree = function(uf_pedigree,
                                           ncsu_pedigree,

@@ -7,7 +7,6 @@
 renv/library/
 renv/local/
 renv/cellar/
-renv/lock/
 renv/python/
 renv/staging/
 
@@ -23,7 +22,7 @@ __pycache__/
 .pytest_cache/
 
 
-data/processed/*
+# data/processed/*
 !data/processed/.gitkeep
 
 
@@ -32,8 +31,12 @@ artifacts/model2/*
 !artifacts/model2/README.md
 
 
+R/diagnostics
+
 .DS_Store
 .vscode/
 *.swp
+.ipynb
+.pdf
 
 DESIGN.md

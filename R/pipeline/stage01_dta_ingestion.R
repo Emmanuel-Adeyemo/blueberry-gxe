@@ -3,7 +3,7 @@
 # Single rda file with 8 trial dta frames <LOC><YY>.ori + MetaData + OffID
 
 
-stage00_targets = list(
+stage01_targets = list(
   
   # pedigree
   # UF
@@ -89,10 +89,10 @@ stage00_targets = list(
 
   # NC and FL added 10/03
   tar_target(
-    nc_path25, 'data/raw/nc/2025NCSUData_updated_09282026.xlsx', format = 'file'
+    nc_path25, 'data/raw/nc/2025NCSUData_updated_09282026_ea.xlsx', format = 'file'
   ),
 
-  tar_target(nc_path24, 'data/raw/nc/2024 NCSU Data.xlsx', format = 'file'),
+  tar_target(nc_path24, 'data/raw/nc/2024 NCSU Data_ea.xlsx', format = 'file'),
 
   tar_target(fl_path25, 'data/raw/fl/UF 2025.xlsx', format = 'file'),
 
@@ -101,18 +101,50 @@ stage00_targets = list(
   tar_target(fl_path24_bloom, 'data/raw/fl/Bloom_UF_2024.xlsx', format = 'file'),
 
   tar_target(al_rda, read_al_rda(al_rda_file)),
-  
+
   tar_target(al_metadata, read_al_metadata(al_rda)),
   tar_target(al_off_type, read_al_off_type(al_rda)),
-  
+
   tar_target(al_all_dta, ingest_all_al_dta(al_rda)),
   tar_target(al_bloom_long, al_all_dta$bloom_long),
   tar_target(al_yield_long, al_all_dta$yield_long),
+
+  # 10/16 quality traits 
+  tar_target(
+    al_ev26_quality_file,
+    'data/raw/al/EV26_071726_Final.xlsx',
+    format = 'file'
+  ),
+  tar_target(
+    al_bw26_quality_file,
+    'data/raw/al/BW26_071726_Final.xlsx',
+    format = 'file'
+  ),
+  tar_target(al_2026_quality, ingest_al_quality_2026(al_ev26_quality_file, al_bw26_quality_file)),
+
+  tar_target(al_plant_height_long, al_all_dta$plant_height_long),
+  tar_target(al_avg_berry_weight_long, al_all_dta$avg_berry_weight_long),
+  tar_target(al_firmness_long, al_all_dta$firmness_long),
+  tar_target(al_brix_long, dplyr::bind_rows(al_all_dta$brix_long, al_2026_quality$brix_long)),
+  tar_target(al_ta_long, dplyr::bind_rows(al_all_dta$ta_long, al_2026_quality$ta_long)),
 
   # nc
   tar_target(nc_all_dta, ingest_nc(nc_path25, nc_path24)),
   tar_target(nc_yield, nc_all_dta$yield),
   tar_target(nc_bloom, nc_all_dta$bloom),
+  tar_target(nc_meta, nc_all_dta$meta),
+
+  # 10/16 NC quality traits 
+  tar_target(
+    nc_path25_quality,
+    'data/raw/nc/2025NCSUData_updated_09282026_ea.xlsx',
+    format = 'file'
+  ),
+  tar_target(nc_quality, ingest_nc_quality(nc_path25_quality, nc_path24)),
+  tar_target(nc_avg_berry_weight, nc_quality$avg_berry_weight),
+  tar_target(nc_firmness, nc_quality$firmness),
+  tar_target(nc_brix, nc_quality$brix),
+  tar_target(nc_ta, nc_quality$ta),
 
   # fl
   tar_target(fl_all_dta, ingest_fl(fl_path25, fl_path24_yld, fl_path24_bloom)),
@@ -122,4 +154,3 @@ stage00_targets = list(
   tar_target(trial_genotypes, get_unique_genotypes(al_metadata))
   
 )
-

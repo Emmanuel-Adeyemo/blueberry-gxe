@@ -5,20 +5,19 @@ library(dplyr)
 library(tibble)
 
 
-fit_single_trial_qc = function(trial_data, trait_name) {
-  asreml_res = fit_single_trial_sommer(trial_data)
-  
-  sommer_res = fit_single_trial_sommer(trial_data)
-  
+fit_single_trial_qc = function(trial_data, trait_name, scale = 'raw', raw_mean_y = NULL) {
 
+  asreml_res = fit_single_trial_asreml(trial_data)
+
+  sommer_res = fit_single_trial_sommer(trial_data)
   asreml_metrics = if (isTRUE(asreml_res$converged)) {
-    compute_qc_metrics(asreml_res$vc_g, asreml_res$vc_e, asreml_res$mean_y, asreml_res$pev)
+    compute_qc_metrics(asreml_res$vc_g, asreml_res$vc_e, asreml_res$mean_y, asreml_res$pev, scale = scale, raw_mean_y = raw_mean_y)
   } else {
     list(H2 = NA_real_, Re = NA_real_, CV = NA_real_)
   }
 
   sommer_metrics = if (isTRUE(sommer_res$converged)) {
-    compute_qc_metrics(sommer_res$vc_g, sommer_res$vc_e, sommer_res$mean_y, sommer_res$pev)
+    compute_qc_metrics(sommer_res$vc_g, sommer_res$vc_e, sommer_res$mean_y, sommer_res$pev, scale = scale, raw_mean_y = raw_mean_y)
   } else {
     list(H2 = NA_real_, Re = NA_real_, CV = NA_real_)
   }

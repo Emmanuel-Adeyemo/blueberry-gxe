@@ -1,7 +1,7 @@
 
 # all pedigree processing
 
-stage01_targets = list(
+stage02_targets = list(
   tar_target(
     pedigree_resolved,
     combine_and_resolve_pedigree(

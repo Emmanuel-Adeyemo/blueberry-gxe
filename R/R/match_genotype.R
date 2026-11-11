@@ -12,7 +12,7 @@ library(tibble)
 .SOURCE_PREFIX = c(UF = 'FL')
 
 # fix one - normalize formatting noise
-normalize_pedigree_name <- function(x) {
+normalize_pedigree_name = function(x) {
   x %>%
     tolower() %>%
     str_remove_all("['\u2019]") %>%

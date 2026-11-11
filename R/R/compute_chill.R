@@ -16,39 +16,31 @@ compute_daily_chill_heat = function(hour_temps_one_loc) {
 }
 
 
-add_cumm_chill_heat = function(daily_chill_dta, season) {
-  anchor = season_anchor_date(season)
+# plot envt covariates
+plot_envt_cluster = function(env_cov){
 
-  date_col = as.Date(paste(daily_chill_dta$Year, daily_chill_dta$Month, daily_chill_dta$Day, sep = '-'))
+  Env_label = env_cov %>%
+    mutate(Env = paste(location, season)) %>%
+    pull(Env)
 
-  daily_chill_dta %>%
-    mutate(obs_date = date_col) %>%
-    filter(obs_date >= anchor) %>%
-    arrange(obs_date) %>%
-    mutate(chill_portions_cumm = cumsum(Chill_Portions), gdh_cumm = cumsum(GDH))
+  clust_vars = env_cov %>%
+    dplyr::select(Chill_Portions_sum, GDH_sum, frost_score) %>%
+    scale()
+
+  rownames(clust_vars) = Env_label
+
+  dist_mat = dist(clust_vars, method = "euclidean")
+  hc = hclust(dist_mat, method = "ward.D2")
+  min_y = -0.25 * max(hc$height)
+
+  fviz_dend(
+    hc, 
+    main = "Env clustering: chill + heat + frost",
+    ggtheme = theme_minimal()
+  ) +
+    scale_y_continuous(limits = c(min_y, NA)) +
+    coord_cartesian(clip = 'off') +
+    theme(plot.margin = margin(t = 10, r = 10, b = 40, l = 10, unit = 'pt'))
+    
 }
 
-
-run_window_pls = function(daily_chill_dta, bio_dta, split_month = 8, ...){
-
-  daily_chill_obj = list(object_type = 'daily_chill', daily_chill = as.data.frame(daily_chill_dta))
-
-  fit = chillR::PLS_chill_force(
-    daily_chill_obj = daily_chill_obj,
-    bio_data_frame = as.data.frame(bio_dta),
-    split_month = split_month,
-    chill_models = 'Chill_Portions',
-    heat_models = 'GDH',
-    ...
-  )
-
-  pls_summary = fit$Chill_Portions$GDH$PLS_summary
-
-  if (is.null(pls_summary)) {
-    stop(
-      "run_critical_window_pls(): chillR::PLS_chill_force()'s output did ", 'not have the expected result$Chill_Portions$GDH$PLS_summary element. '
-    )
-  }
-
-  as_tibble(pls_summary)
-}
