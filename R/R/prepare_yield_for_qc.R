@@ -4,11 +4,11 @@ library(dplyr)
 
 aggregate_yield_for_qc = function(yield_dta){
 
-
-  has_age = 'Age' %in% names(yield_dta)
+has_age = 'Age' %in% names(yield_dta)
 
   plant_group_cols = c('season', 'location', 'BlockNo', 'SubplotNo', 'PlantID', 'Genotype')
   if (has_age) plant_group_cols = c(plant_group_cols, 'Age')
+  
 
   plant_totals = yield_dta %>%
     filter(HealthSummary > 0, Harvested == 'Yes') %>%
@@ -67,11 +67,11 @@ aggregate_quality_trait_for_qc = function(trait_long, value_col) {
 
   plant_means = trait_long %>%
     filter(HealthSummary > 0, Harvested == 'Yes') %>%
-    group_by(season, location, BlockNo, SubplotNo, PlantID, Genotype) %>%
+    group_by(season, location, BlockNo, SubplotNo, PlantID, Genotype, Age) %>%
     summarise(plant_mean = mean(.data[[value_col]], na.rm = TRUE), .groups = 'drop') %>%
     mutate(plant_mean = ifelse(is.nan(plant_mean), NA_real_, plant_mean))
 
   plant_means %>%
-    group_by(season, location, BlockNo, SubplotNo, Genotype) %>%
+    group_by(season, location, BlockNo, SubplotNo, Genotype, Age) %>%
     summarise(!!value_col := mean(plant_mean, na.rm = TRUE), .groups = 'drop')
 }
