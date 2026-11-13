@@ -7,9 +7,9 @@ prepare_fa_dta = function(subplot_dta, trait_col, qc_pass_envts = NULL, extra_co
   dta = subplot_dta
 
   if (!is.null(qc_pass_envts)) {
-    data <- data %>%
+    data = data %>%
       inner_join(
-        qc_pass_envts %>% distinct(.data$season, .data$location),
+        qc_pass_envts %>% distinct(season, location),
         by = c('season', 'location')
       )
   }
@@ -76,7 +76,7 @@ aggregate_nc_quality_for_fa = function(trait_dta, value_col, block_col = 'subplo
 
   trait_dta = trait_dta %>% filter(!is.na(.data[[block_col]]))
 
-  group_cols = c('season', 'location', 'plot', block_col, 'genotype')
+  group_cols = c('season', 'location', 'plot', block_col, 'genotype', 'Age')
 
   dta = trait_dta %>%
     group_by(across(all_of(group_cols))) %>%

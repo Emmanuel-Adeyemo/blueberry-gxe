@@ -10,7 +10,9 @@ FL_GENOTYPE_ALIASES = c(
   'New Hanover' = 'NewHanover'
 )
 
-
+#' @description normalizes FL genotype names for matching with AL genotpe set.
+#' @param genotype character vector of raw FL genotype names e.g. the `genotype` col of `fl_yield`, output of `ingest_fl()`
+#' @output character vector of normalized geno names 
 normalize_fl_genotype = function(genotype) {
   recoded = FL_GENOTYPE_ALIASES[genotype]
   x = if_else(!is.na(recoded), recoded, genotype)
@@ -19,6 +21,10 @@ normalize_fl_genotype = function(genotype) {
 }
 
 
+#' @description cleans FL genotype names with `normalize_fl_genotype`, drops any geno not in the AL/SHB set
+#' @param dta FL trait dta with a `genotype` col e.g. `fl_yield`, output of `ingest_fl()`
+#' @param al_dta al dta, already cleaned. used as the reference genotype set
+#' @output df with genotype normalized and filtered to genotypes in the reference set
 clean_fl_genotypes = function(dta, al_dta) {
   before = dta$genotype
   dta$genotype = normalize_fl_genotype(before)

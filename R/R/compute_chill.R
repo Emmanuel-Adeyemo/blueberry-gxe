@@ -3,6 +3,10 @@
 library(dplyr)
 library(chillR)
 
+
+#' @description computes daily chill with dynamic model and heat accumulations with station hourly data
+#' @param hour_temps_one_loc hourly temp dta for one loc e.g. `ev_weather_prepared`
+#' @output a df with cum chill portions and gdh for that loc
 compute_daily_chill_heat = function(hour_temps_one_loc) {
 
   hourtemps_clean = hour_temps_one_loc %>% dplyr::select(-any_of('Location'))
@@ -17,6 +21,10 @@ compute_daily_chill_heat = function(hour_temps_one_loc) {
 
 
 # plot envt covariates
+#' @description hierarchical clustering of envts using chill, heat, and frost covariates
+#' @param env_cov envt level covariate table. It is a join of `env_clustering_covariates` (output of `compute_fixed_window_covariate()`), `frost_score`(output of `compute_frost_score()`)
+#' and `weather_gap_report` (output of `summarize_gap_overlap()`)
+#' @output a hc ggplot obj
 plot_envt_cluster = function(env_cov){
 
   Env_label = env_cov %>%

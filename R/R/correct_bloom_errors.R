@@ -8,7 +8,7 @@ library(dplyr)
 carry_forward_bloom_correction = function(bloom_dta){
 
   bloom_dta %>%
-    arrange(season, location, PlantID, obs_date) %>%
+    arrange(season, location, PlantID, obs_date, Age) %>%
     group_by(season, location, PlantID) %>%
     mutate(
       bloom_percent_raw = bloom_percent,

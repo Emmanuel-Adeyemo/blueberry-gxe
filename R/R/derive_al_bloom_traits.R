@@ -33,16 +33,16 @@ library(tibble)
 interpolate_bloom_doy = function(bloom_dta, thresholds = c(bloom1 = 1, bloom5 = 5, bloom10 = 10, bloom50 = 50, bloom100 = 100)) {
 
   plant_meta = bloom_dta %>%
-    distinct(season, location, PlantID, BlockNo, SubplotNo, Genotype)
+    distinct(season, location, PlantID, BlockNo, SubplotNo, Genotype, Age)
 
   bloom_dta %>%
-    arrange(season, location, PlantID, obs_date) %>%
+    arrange(season, location, PlantID, obs_date, Age) %>%
     group_by(season, location, PlantID) %>%
     reframe(
       map_dfc(thresholds, ~ .interpolate_threshold_date(obs_date, bloom_percent, .x))
     ) %>%
     left_join(plant_meta, by = c('season', 'location', 'PlantID')) %>%
-    relocate('BlockNo', 'SubplotNo', 'Genotype', .after = 'PlantID') %>%
+    relocate('BlockNo', 'SubplotNo', 'Genotype', 'Age', .after = 'PlantID') %>%
     # added bloom duration since I wont get that from AUC - 09/18
     mutate(bloom_duration = bloom100 - bloom5)
   
@@ -75,7 +75,7 @@ interpolate_bloom_doy = function(bloom_dta, thresholds = c(bloom1 = 1, bloom5 = 
 compute_bloom_auc = function(bloom_dta, few_distinct_threshold = 3) {
 
   plant_meta = bloom_dta %>%
-    distinct(season, location, PlantID, BlockNo, SubplotNo, Genotype)
+    distinct(season, location, PlantID, BlockNo, SubplotNo, Genotype, Age)
 
 
   season = unique(bloom_dta$season)
@@ -88,7 +88,7 @@ compute_bloom_auc = function(bloom_dta, few_distinct_threshold = 3) {
   window_length = as.numeric(window_end - window_start)
 
   bloom_dta %>%
-    arrange(season, location, PlantID, obs_date) %>%
+    arrange(season, location, PlantID, obs_date, Age) %>%
     group_by(season, location, PlantID) %>%
     summarise(
       auc_raw_absolute = .trapezoidal_bloom_auc(obs_date, bloom_percent_raw, window_start, window_end),
@@ -104,5 +104,5 @@ compute_bloom_auc = function(bloom_dta, few_distinct_threshold = 3) {
       few_distinct_bloom_values = n_distinct_bloom_values <= few_distinct_threshold
     )%>%
     left_join(plant_meta, by = c('season', 'location', 'PlantID')) %>%
-    relocate('BlockNo', 'SubplotNo', 'Genotype', .after = 'PlantID')
+    relocate('BlockNo', 'SubplotNo', 'Genotype', 'Age', .after = 'PlantID')
 }

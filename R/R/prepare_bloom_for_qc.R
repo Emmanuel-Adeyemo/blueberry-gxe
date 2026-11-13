@@ -2,10 +2,11 @@
 
 library(dplyr)
 
-
+# 11/11 added Age - to test sig
 aggregate_bloom_to_subplot = function(bloom_dta, trait_cols) {
+  
   bloom_dta %>%
-    group_by(season, location, BlockNo, SubplotNo, Genotype) %>%
+    group_by(season, location, BlockNo, SubplotNo, Genotype, Age) %>%
     summarise(across(all_of(trait_cols), ~ mean(.x, na.rm = TRUE)), .groups = 'drop')
 }
 

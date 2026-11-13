@@ -75,6 +75,33 @@ extract_blups_asreml = function(fit, dta, Gmat) {
     transmute(Genotype, Env, blup = predicted.value - env_effect, se = std.error)
 }
 
+extract_blups_asreml_additive = function(fit, dta, Gmat, Dmat = NULL) {
+  pv = predict(fit, classify = "Env:Genotype", data = dta,
+                onlyuse = ~fa(Env, k = 2):vm(Genotype, Gmat))$pvals
+  env_fixed = predict(fit, classify = "Env", data = dta)$pvals
+  pv %>%
+    mutate(Env = as.character(Env), Genotype = as.character(Genotype)) %>%
+    left_join(
+      env_fixed %>% transmute(Env = as.character(Env), env_effect = predicted.value),
+      by = "Env"
+    ) %>%
+    transmute(Genotype, Env, blup = predicted.value - env_effect, se = std.error)
+}
+
+
+extract_blups_asreml_additive_yld = function(fit, dta, Gmat, Dmat = NULL) {
+  pv = predict(fit, classify = "Env:Genotype", data = dta,
+                onlyuse = ~fa(Env, k = 3):vm(Genotype, Gmat), average = 'factor(Age)')$pvals
+  env_fixed = predict(fit, classify = "Env", data = dta, average = 'factor(Age)')$pvals
+  pv %>%
+    mutate(Env = as.character(Env), Genotype = as.character(Genotype)) %>%
+    left_join(
+      env_fixed %>% transmute(Env = as.character(Env), env_effect = predicted.value),
+      by = "Env"
+    ) %>%
+    transmute(Genotype, Env, blup = predicted.value - env_effect, se = std.error)
+}
+
 
 # extract_blups_asreml_split = function(fit, dta, ka, ke) {
 #   pv_a = predict(fit, classify = "Env:Genotype", data = dta,
@@ -352,32 +379,7 @@ add_nonadd_scalar_to_blups = function(blup_long, nonadd_scalar) {
 }
 
 
-extract_blups_asreml_additive = function(fit, dta, Gmat, Dmat = NULL) {
-  pv = predict(fit, classify = "Env:Genotype", data = dta,
-                onlyuse = ~fa(Env, k = 2):vm(Genotype, Gmat))$pvals
-  env_fixed = predict(fit, classify = "Env", data = dta)$pvals
-  pv %>%
-    mutate(Env = as.character(Env), Genotype = as.character(Genotype)) %>%
-    left_join(
-      env_fixed %>% transmute(Env = as.character(Env), env_effect = predicted.value),
-      by = "Env"
-    ) %>%
-    transmute(Genotype, Env, blup = predicted.value - env_effect, se = std.error)
-}
 
-
-extract_blups_asreml_additive_yld = function(fit, dta, Gmat, Dmat = NULL) {
-  pv = predict(fit, classify = "Env:Genotype", data = dta,
-                onlyuse = ~fa(Env, k = 3):vm(Genotype, Gmat), average = 'factor(Age)')$pvals
-  env_fixed = predict(fit, classify = "Env", data = dta, average = 'factor(Age)')$pvals
-  pv %>%
-    mutate(Env = as.character(Env), Genotype = as.character(Genotype)) %>%
-    left_join(
-      env_fixed %>% transmute(Env = as.character(Env), env_effect = predicted.value),
-      by = "Env"
-    ) %>%
-    transmute(Genotype, Env, blup = predicted.value - env_effect, se = std.error)
-}
 
 
 # PC loadings for biplot plotting

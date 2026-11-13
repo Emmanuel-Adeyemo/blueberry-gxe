@@ -2,6 +2,14 @@
 
 library(dplyr)
 
+
+#' @description flags whether a late-season frost (temp <= `frost_threshold`) occurred in a fixed day of year(`Mar 15`) scoring window 
+#' @param weather_prepared hourly dta for one loc e.g. `ev_weather_prepared`
+#' @param season single season (year) to score
+#' @param frost_threshold temp at/below which a frost is counted, defaults to -2.
+#' @param scoring_window `c(start=, end=)` window within which to look for frost, defaults to days 195-211 after the Sept 1 of preceeding year
+#' @param frost_weight score assigned if a frost occurred in the window. defaults to 1 if frost and 0 if not
+#' @output df
 compute_frost_score = function(weather_prepared, season, frost_threshold = -2,
                                 scoring_window = c(start = 195, end = 211), frost_weight = 1) {
   
