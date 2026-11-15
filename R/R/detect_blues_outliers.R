@@ -6,6 +6,10 @@ library(purrr)
 library(asreml)
 
 
+#' @description fits single-trial BLUEs with `fit_single_trial_blue_asreml()`, stacks res in one long df
+#' @param trial_dta_list list, one per environment, of per-trial df
+#' @param fit_fun single-trial BLUE-fitting func to apply to each element of `trial_dta_list`, defaults to `fit_single_trial_blue_asreml()` 
+#' @output long df of per-genotype BLUEs across all environments, with an `Env` column
 build_trait_blues_dta = function(trial_dta_list, fit_fun = fit_single_trial_blue_asreml) {
   purrr::imap_dfr(trial_dta_list, function(trial_dta, env_name) {
     if (is.null(trial_dta) || nrow(trial_dta) == 0) return(NULL)
@@ -16,6 +20,11 @@ build_trait_blues_dta = function(trial_dta_list, fit_fun = fit_single_trial_blue
 }
 
 
+#' @description fits a multi-envt model on stacked single-trial BLUEs (wgted by their inverse squared se) to flag gxe outlier BLUEs, using ASReml-R's
+#'   `aom` (adjusted outlier method) studentized residuals against a ~3-SD (99.73%) two-sided cutoff
+#' @param blues_dta long-format stacked BLUEs with `Genotype`, `Env`, `predicted_value`, `std_error` columns, e.g. `yield_blues` output of `build_trait_blues_dta()`
+#' @param trt trait name used to rename the generic `predicted_value`/`std_error`/`wts` columns in the `outliers` 
+#' @output list 
 detect_blue_outliers_asreml = function(blues_dta, trt) {
 
   dta = blues_dta %>%

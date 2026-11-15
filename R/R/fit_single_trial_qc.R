@@ -4,7 +4,13 @@
 library(dplyr)
 library(tibble)
 
-
+#' @description entry point for single-trial qc: fits the same trial/trait with both `fit_single_trial_asreml()` and `fit_single_trial_sommer()`, computes qc
+#'   metrics (`compute_qc_metrics()`, called once per trait per environment from `build_per_trial_qc_dta()`/`build_per_trial_qc_dta_nc_fl()` 
+#' @param trial_data single-trial, single-trait dta e.g. the per-trait `trial_dta` dfs built inside `build_per_trial_qc_dta()`/`build_per_trial_qc_dta_nc_fl()`
+#' @param trait_name trait label to attach to the output row (e.g. `'TotalYield_sqrt'`, `'bloom50'`, `'firmness'`)
+#' @param scale which scale `trial_data$y` is on, controlling `compute_qc_metrics()`'s CV formula: `'raw'` (default), `'log'`, or `'sqrt'` (requires `raw_mean_y`)
+#' @param raw_mean_y trial mean of the response on its original (untransformed) scale; required only when `scale = 'sqrt'`
+#' @output df
 fit_single_trial_qc = function(trial_data, trait_name, scale = 'raw', raw_mean_y = NULL) {
 
   asreml_res = fit_single_trial_asreml(trial_data)
