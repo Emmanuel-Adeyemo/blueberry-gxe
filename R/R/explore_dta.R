@@ -5,9 +5,13 @@ library(ggplot2)
 library(tidyr)
 
 
-
-describe_trait_by_group = function(data, trait_col, group_cols) {
-  data %>%
+#' @description general-purpose exploratory data analysis helper,  summarizes one trait's descriptive statistics. not wired into targets
+#' @param dta any df containing `trait_col` e.g. a raw or cleaned trait long df such as `al_yield_long_clean`/`nc_yield_clean` or a per-trial qc df such as `per_trial_qc`
+#' @param group_cols character vec of col names to group by e.g. `c('season', 'location')`
+#' @param trait_col name of the numeric trait col to summarize
+#' @output df 
+describe_trait_by_group = function(dta, trait_col, group_cols) {
+  dta %>%
     group_by(across(all_of(group_cols))) %>%
     summarise(
       n = sum(!is.na(.data[[trait_col]])),
@@ -24,8 +28,14 @@ describe_trait_by_group = function(data, trait_col, group_cols) {
 }
 
 
-describe_genotype_coverage = function(data, group_cols, genotype_col = 'genotype') {
-  per_genotype_counts = data %>%
+#' @description general purpose EDA helper: for each combination of grouping columns, counts distinct genotypes and summarizes replication. not wired into targets
+#' @param data Any df containing `genotype_col` and all of `group_cols`, e.g. a trait-long or per-trial data frame such as `al_yield_long_clean`/`nc_yield_clean`, or an
+#'   FA-model-ready df such as `prep_yield`, output of `prepare_fa_dta()`
+#' @param group_cols character vec of col names to group by (e.g. `c('season', 'location')` or `'Env'`
+#' @param genotype_col name of the genotype cols, def to `'genotype'` 
+#' @output df 
+describe_genotype_coverage = function(dta, group_cols, genotype_col = 'genotype') {
+  per_genotype_counts = dta %>%
     group_by(across(all_of(c(group_cols, genotype_col)))) %>%
     summarise(n_reps = n(), .groups = 'drop')
 
@@ -33,15 +43,19 @@ describe_genotype_coverage = function(data, group_cols, genotype_col = 'genotype
     group_by(across(all_of(group_cols))) %>%
     summarise(
       n_genotypes = n(),
-      n_rows = sum(.data$n_reps),
-      mean_reps_per_genotype = mean(.data$n_reps),
-      min_reps_per_genotype = min(.data$n_reps),
-      max_reps_per_genotype = max(.data$n_reps),
+      n_rows = sum(n_reps),
+      mean_reps_per_genotype = mean(n_reps),
+      min_reps_per_genotype = min(n_reps),
+      max_reps_per_genotype = max(n_reps),
       .groups = 'drop'
     )
 }
 
 
+#' @description general-purpose EDA helper, tallies total and missing obs per trait within each grouping columns, and reshapes to one row per (group, trait). 
+#' @param trait_cols character vec of trait col names to check for missingness.
+#' @param group_cols character vec of col names to group by (e.g. `c('season', 'location')`).
+#' @output df
 summarise_missingness = function(data, trait_cols, group_cols) {
   data %>%
     group_by(across(all_of(group_cols))) %>%
@@ -62,10 +76,16 @@ summarise_missingness = function(data, trait_cols, group_cols) {
 }
 
 
-plot_trait_by_group = function(data, trait_col, group_col, title = NULL) {
+#' @description general-purpose EDA helper: boxplot + jittered points of one trait across levels of one grouping col. not wired into targets
+#' @param data Any df containing `trait_col` and `group_col`.
+#' @param trait_col name of the numeric trait col to plot on the y-axis.
+#' @param group_col name of the col to plot on the x-axis, e.g. `'Env'` or `'season'`.
+#' @param title optional plot title; defaults to `"<trait_col> by <group_col>"` if `NULL`.
+#' @output ggplot obj
+plot_trait_by_group = function(dta, trait_col, group_col, title = NULL) {
   if (is.null(title)) title = paste(trait_col, 'by', group_col)
 
-  ggplot(data, aes(x = .data[[group_col]], y = .data[[trait_col]])) +
+  ggplot(dta, aes(x = .data[[group_col]], y = .data[[trait_col]])) +
     geom_boxplot(outlier.shape = NA, fill = 'grey90') +
     geom_jitter(width = 0.15, alpha = 0.4, size = 1) +
     labs(title = title, x = group_col, y = trait_col) +

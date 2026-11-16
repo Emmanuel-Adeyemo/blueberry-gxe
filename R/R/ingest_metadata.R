@@ -4,7 +4,8 @@ library(dplyr)
 library(tibble)
 
 
-#' @param rda_file - combination of all csv trials in AL
+#' @description pulls the `MetaData` element out of the combined AL rda obj
+#' @param rda_file - combination of all csv trials in AL ie `al_rda`
 read_al_metadata = function(rda_file) {
   
   if (!'MetaData' %in% names(rda_file)) {
@@ -15,7 +16,8 @@ read_al_metadata = function(rda_file) {
 
 
 
-#' @param rda_file - combination of all csv trials in AL
+#' @description pulls the `OffID` element out of the combined AL rda
+#' @param rda_file - combination of all csv trials in AL ie `al_rda`
 read_al_off_type = function(rda_file) {
   if (!'OffID' %in% names(rda_file)){
     stop('read_al_off_type(): rda_file has no "OffID" file' )

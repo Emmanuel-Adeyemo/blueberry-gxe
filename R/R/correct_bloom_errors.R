@@ -1,10 +1,15 @@
 # 09/12
 
-# future bloom date should not have a regression in bloom proression
+# future bloom date should not have a regression in bloom progression
 # using Sushan's carry forward approach ie change error value to last known correct value
 
 library(dplyr)
 
+
+#' @description corrects non progressing bloom-percent readings ie later observation lower than previous. Sushan's carry-forward approach: any lower obs is replaced with
+#'   the last known (highest) correct value, and flagged via `carried_forward`
+#' @param bloom_dta long-format bloom obs data, e.g. `al_bloom_long` output of `ingest_all_al_dta`
+#' @output `bloom_dta` df
 carry_forward_bloom_correction = function(bloom_dta){
 
   bloom_dta %>%
@@ -21,6 +26,9 @@ carry_forward_bloom_correction = function(bloom_dta){
 
 
 # never bloomed - assumed dead
+#' @description identifies and excludes plants that never reached any bloom percent ie `max(bloom_percent) = 0`
+#' @param bloom_dta long format bloom obs e.g output of `carry_forward_bloom_correction()`
+#' @output list with clean bloom df and excluded df
 exclude_never_bloomed = function(bloom_dta) {
   plant_max = bloom_dta %>%
     group_by(PlantID, season) %>%

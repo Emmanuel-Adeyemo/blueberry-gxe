@@ -2,6 +2,10 @@ library(dplyr)
 library(asreml)
 
 
+#' @description fits a simple single-trial model in ASReml-R (homogeneous residual) for one trait in one environment, and extracts the genotype/residual
+#'   var components, trial mean, and genotype BLUP prediction-error variances needed by `compute_qc_metrics()`
+#' @param trial_dta single-trial, single-trait dta e.g. one element of the `dta`/`trial_dta` lists built in `build_per_trial_qc_dta()`/`build_per_trial_qc_dta_nc_fl()` 
+#' @output list
 fit_single_trial_asreml = function(trial_dta) {
 
   if ('block' %in% names(trial_dta)){

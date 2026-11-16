@@ -7,6 +7,10 @@ library(purrr)
 library(tibble)
 
 
+#' @description runs a likelihood-ratio test (LRT) down a table of nested model fits (e.g. FA1 -> FA2 -> FA3), comparing each row to the row before it
+#' @param df model-comparison df with one row per fitted model and columns `LogL` (log-likelihood) and `N_params` (num of estimated
+#'   param). In the pipeline these are tables like `mods_comp_asr`/`mods_comp_asr_qual` 
+#' @output df
 run_lrt = function(df) {
   df %>%
     mutate(
@@ -24,7 +28,11 @@ run_lrt = function(df) {
 
 
 # 10/24 
-#
+#' @description splits an ASReml-R `summary(fit)$varcomp` table into additive and non-additive
+#' @param varcomp ASReml-R `summary(fit)$varcomp` df/mat from a model fit `fit_fa_asreml()` with both additive and non-additive genetic terms
+#' @param add_pattern regex matched against `rownames(varcomp)` to identify additive-term rows. Def to "Gmat"
+#' @param nonadd_pattern regex matched against `rownames(varcomp)` to identify non-additive-term rows. def to 'Dmat'
+#' @output list with two elements, `additive` and `nonadditive`
 split_varcomp_asreml = function(varcomp,
                                   add_pattern = "Gmat",
                                   nonadd_pattern = "ide\\(Genotype|Dmat") {
@@ -38,6 +46,14 @@ split_varcomp_asreml = function(varcomp,
 
 
 # 10/24 
+#' @description wrapper that splits a joint additive+non-additive `varcomp` table (via `split_varcomp_asreml()`) and extracts each part's genetic cov/corr mat via `extract_rg_matrix_asreml()`
+#' @param varcomp an ASReml-R `summary(fit)$varcomp` table from a model with both additive and non-additive genetic terms
+#' @param env_levels character vec of envt level names, in the same order used to fit the model - passed through to `extract_rg_matrix_asreml()`
+#' @param ka num of additive FA factors 
+#' @param ke num of non-additive FA factors 
+#' @param add_pattern regex identifying additive-term rows - passed through to `split_varcomp_asreml()`
+#' @param nonadd_pattern regex identifying non-additive-term rows - passed through to `split_varcomp_asreml()`
+#' @output list with two elements, `additive` and `nonadditive`
 extract_rg_matrix_asreml_split = function(varcomp, env_levels, ka, ke,
                                             add_pattern = "Gmat",
                                             nonadd_pattern = "ide\\(Genotype|Dmat") {
@@ -50,6 +66,11 @@ extract_rg_matrix_asreml_split = function(varcomp, env_levels, ka, ke,
 
 
  # this is easier than extracting and transforming from coef$random
+#' @description extracts genotype BLUPs for the YIELD ASReml-R FA model, which also has a `factor(Age)` fixed effect -- predictions are averaged over `Age` levels
+#' @param fit a fitted yield FA-GBLUP model with `extra_fixed = "factor(Age)"`
+#' @param dta dta used to fit (e.g. `prep_and_scale_dta(prep_yield)`
+#' @param Gmat accepted even though not used in the function itself, but asreml requires it since it is used in fit_fa_asreml()
+#' @output df
 extract_blups_asreml_yld = function(fit, dta, Gmat) {
   pv = predict(fit, classify = "Env:Genotype", data = dta, average = 'factor(Age)')$pvals
   env_fixed = predict(fit, classify = "Env", data = dta, average = 'factor(Age)')$pvals
@@ -63,6 +84,11 @@ extract_blups_asreml_yld = function(fit, dta, Gmat) {
 }
 
 
+#' @description extracts genotype BLUPs for the traits except 'yield' for ASReml-R FA model. No 'Age' included
+#' @param fit a fitted yield FA-GBLUP model without 'Age'
+#' @param dta dta used to fit (e.g. `prep_and_scale_dta(prep_bloom_bloom5)`
+#' @param Gmat accepted even though not used in the function itself, but asreml requires it since it is used in fit_fa_asreml()
+#' @output df
 extract_blups_asreml = function(fit, dta, Gmat) {
   pv = predict(fit, classify = "Env:Genotype", data = dta)$pvals
   env_fixed = predict(fit, classify = "Env", data = dta)$pvals
@@ -75,6 +101,12 @@ extract_blups_asreml = function(fit, dta, Gmat) {
     transmute(Genotype, Env, blup = predicted.value - env_effect, se = std.error)
 }
 
+
+#' @description extracts genotype BLUPs restricted to the additive genetic term only for a non-yield ASReml FA model 
+#' @param fit fitted FA-GBLUP model with both additive and non-additive genetic terms 
+#' @param dta The data used to fit 
+#' @param Gmat additive relationship matrix
+#' @param Dmat optional - dominance genomic relationship matrix
 extract_blups_asreml_additive = function(fit, dta, Gmat, Dmat = NULL) {
   pv = predict(fit, classify = "Env:Genotype", data = dta,
                 onlyuse = ~fa(Env, k = 2):vm(Genotype, Gmat))$pvals

@@ -6,6 +6,13 @@ library(tibble)
 
 
 # reproduce Sushan's interpolation (BM50.calc())
+
+#' @description linearly interpolates the date at which a single plant's bloom percent first crosses a given threshold, if the threshold is never reached, returns the last observed date
+#' if already met at the first obs, returns that date; 
+#' @param dates vec of obs dates for one plant in one season
+#' @param percents vec of bloom-percent values aligned with `dates`, for the same plant
+#' @param threshold single bloom-percent threshold to interpolate the crossing date for e.g. 1, 5, 50, 100 ...
+#' @output a single `Date` or `NA` if `percents` is all `NA`
 .interpolate_threshold_date = function(dates, percents, threshold){
   if(all(is.na(percents))) {
     return(as.Date(NA))
@@ -30,6 +37,10 @@ library(tibble)
 
 
 
+#' @description gets per-plant bloom-timing traits for one environment's AL bloom data, with `.interpolate_threshold_date()` per plant per threshold
+#' @param bloom_dta long-format bloom observation data for one envt (season x location), e.g. `al_bloom_long_clean` 
+#' @param thresholds numeric vec of bloom-percent thresholds to interpolate a date for, defaults to `bloom1`/`bloom5`/`bloom10`/`bloom50`/`bloom100` at 1/5/10/50/100%
+#' @output df
 interpolate_bloom_doy = function(bloom_dta, thresholds = c(bloom1 = 1, bloom5 = 5, bloom10 = 10, bloom50 = 50, bloom100 = 100)) {
 
   plant_meta = bloom_dta %>%
@@ -50,6 +61,13 @@ interpolate_bloom_doy = function(bloom_dta, thresholds = c(bloom1 = 1, bloom5 = 
 
 
 # frost impact metric: AUC
+#' @description computes the trapezoidal area-under-curve of a bloom-percent-over-time series for one plant, every plant's AUC is computed over the same fixed window. 
+#' called internally by `compute_bloom_auc()`
+#' @param dates vec of obs dates for one plant
+#' @param values bloom-percent values aligned with `dates` 
+#' @param window_start date to anchor the start of the AUC window to if earlier than the first obs
+#' @param window_end Date to pad the end of the AUC window to if later than the last obs
+#' @output a single numeric: the trapezoidal area under the bloom percent vs date curve between `window_start` and `window_end`
 .trapezoidal_bloom_auc = function(dates, values, window_start, window_end) {
   ord = order(dates)
   dates = dates[ord]
@@ -72,6 +90,11 @@ interpolate_bloom_doy = function(bloom_dta, thresholds = c(bloom1 = 1, bloom5 = 
 
 
 # compute AUC per plant for one envt on both raw and carry forward bloom percents
+#' @description computes bloom-percent AUC for one envt, on both the raw and carry-forward-corrected bloom series, over a window from that season's anchor date to the 
+#' last observed date and derives a "frost impact" metric as the corrected-minus-raw difference 
+#' @param bloom_dta long format bloom observation data for one envt 
+#' @param few_distinct_threshold flags plants with few obs, def = 3
+#' @output df
 compute_bloom_auc = function(bloom_dta, few_distinct_threshold = 3) {
 
   plant_meta = bloom_dta %>%

@@ -4,7 +4,12 @@ library(dplyr)
 library(ggplot2)
 library(tidyr)
 
-
+#' @description adds a plant's observed (date, bloom_percent) series out to the full scoring window, for plotting as a continuous area/line
+#' @param dates date vec of obs dates for one plant
+#' @param values numeric vec of bloom-percent values, same length/order as `dates`
+#' @param window_start date: start of the scoring window `season_anchor_date()`
+#' @param window_end date: end of the scoring window (the latest obs date in the environment being plotted).
+#' @output a tibble with columns `obs_date` and `bloom_percent`
 .bloom_auc_point_sequence = function(dates, values, window_start, window_end) {
   ord = order(dates)
   dates = dates[ord]
@@ -24,7 +29,10 @@ library(tidyr)
 }
 
 
-
+#' @description diagnostic/exploratory plot - not really wired into targets. 
+#' @param bloom_dta single-envt bloom dta table. In the pipeline this is the per-envt bloom table built in stage04_bloom_harmonization.R
+#' @param plant_ids character/integer vec of `PlantID` values to plot
+#' @output ggplot obj
 plot_bloom_auc = function(bloom_dta, plant_ids) {
   season = unique(bloom_dta$season)
   if (length(season) != 1) {

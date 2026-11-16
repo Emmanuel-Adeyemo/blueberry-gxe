@@ -7,6 +7,11 @@ library(stringr)
 
 
 # helper for h2 and f2 NC 2024
+#' @description reads an excel sheet 
+#' @param path path to the NC raw excel workbook (e.g. `path2024`/`path2025` as passed into `ingest_nc()`
+#' @param sheet name of the sheet to read (e.g. "H2 Yield", "F2 Yield")
+#' @param header_row row num that holds the actual column headers
+#' @output df
 .read_excel_at_header_row = function(path, sheet, header_row) {
   raw = suppressMessages(
     read_excel(path, sheet = sheet, col_names = FALSE, col_types = 'text')
@@ -23,26 +28,41 @@ library(stringr)
 
 
 # YIELD
-
+#' @description reads the raw NC 2025 yield summary sheet
+#' @param path path to the NC 2025 workbook. In the pipeline it is `nc_path25` file target passed in by `ingest_nc()`
+#' @output df
 read_nc_yld_2025_raw = function(path){
   read_excel(path, sheet = 'YieldSum')
 }
 
 
+#' @description reads the raw NC 2024 "H2" yield trial sheet 
+#' @param path path to the NC 2024 workbook. In the pipeline this is the `nc_path24` file passed in by `ingest_nc()`.
+#' @output df
 read_nc_yld_2024_h2_raw = function(path){
   .read_excel_at_header_row(path, sheet = 'H2 Yield', header_row = 2)
 }
 
 
+#' @description reads the raw NC 2024 "F2" yield trial sheet 
+#' @param path path to the NC workbook whose `F2 Yield` sheet should be read. In the pipeline this is called with `path2024` inside `ingest_nc()`.
+#' @output df
 read_nc_yld_2025_f2_raw = function(path){
   .read_excel_at_header_row(path, sheet = 'F2 Yield', header_row = 2)
 }
 
 # META
+#' @description reads the raw NC planting-dates/metadata sheet.
+#' @param path path to an NC workbook with a `planting dates` sheet. In the pipeline this is called with `path2025` inside `ingest_nc()`.
+#' @output The raw tibble from the `planting dates` sheet
 read_nc_metadata = function(path){
   read_excel(path, sheet = 'planting dates')
 }
 
+
+#' @description selects and renames the columns needed from the raw NC planting-dates/metadata sheet.
+#' @param raw output of `read_nc_metadata()`.
+#' @output df
 process_meta = function(raw){
   raw %>% dplyr::select(plot, genotype = name, planting_year)
 }
@@ -50,6 +70,9 @@ process_meta = function(raw){
 
 # normalize raw yld into common schema
 # 2025
+#' @description reshapes the raw NC 2025 yield sheet into the pipeline's common schema for yld
+#' @param raw output of `read_nc_yld_2025_raw()`
+#' @output df
 process_nc_yld_2025 = function(raw){
   raw %>% transmute(
     season = 2025L,
@@ -65,6 +88,8 @@ process_nc_yld_2025 = function(raw){
 
 
 # 2024
+#' @description reshapes the raw NC 2024 "H2" yield sheet into the pipeline's common yld schema
+#' @output df
 process_nc_yld_2024_h2 = function(raw) {
   raw %>%
     transmute(
@@ -81,6 +106,9 @@ process_nc_yld_2024_h2 = function(raw) {
 }
 
 
+#' @description reshapes the raw NC 2024 "F2" yield sheet into the pipeline's common yld schema.
+#' @param raw output of `read_nc_yld_2025_f2_raw()` 
+#' @output df
 process_nc_yld_2024_f2 = function(raw) {
   raw %>%
     transmute(
@@ -96,12 +124,17 @@ process_nc_yld_2024_f2 = function(raw) {
 
 
 # Bloom
-
+#' @description reads the raw NC 2025 
+#' @param path path to the NC 2025 workbook. In the pipeline this is the `nc_path25` 
+#' @output df
 read_nc_bloom_2025_raw = function(path) {
   .read_excel_at_header_row(path, sheet = 'Flowering dates', header_row = 2)
 }
 
 
+#' @description reads the raw NC 2024 
+#' @param path path to the NC 2024 workbook. In the pipeline this is the `nc_path24` 
+#' @output df
 read_nc_bloom_2024_raw = function(path) {
   raw = read_excel(path, sheet = '24 flowering w calc')
   names(raw) = str_trim(names(raw))
@@ -110,12 +143,19 @@ read_nc_bloom_2024_raw = function(path) {
 
 
 # build plot - site columns from yield data
+#' @description derives a (plot : site) lookup table from the already processed 2025 yld dta
+#' @param yield_2025 output of `process_nc_yld_2025()`
+#' @output df
 derive_nc_plot_site_map_2025 = function(yield_2025) {
   yield_2025 %>% distinct(plot, site)
 }
 
 
 
+#' @description reshapes the raw NC 2025 bloom sheet into the pipeline's common bloom-timing schema
+#' @param raw output of `read_nc_bloom_2025_raw()`
+#' @param plot_site_map output of `derive_nc_plot_site_map_2025()`
+#' @output df
 process_nc_bloom_2025 = function(raw, plot_site_map) {
   .excel_serial_to_date = function(x) as.Date(as.numeric(x), origin = '1899-12-30')
 
@@ -135,7 +175,9 @@ process_nc_bloom_2025 = function(raw, plot_site_map) {
 }
 
 
-
+#' @description reshapes the raw NC 2024 bloom sheet into the pipeline's common bloom-timing schema
+#' @param raw output of `read_nc_bloom_2024_raw()`
+#' @output df
 process_nc_bloom_2024 = function(raw) {
   raw %>%
     transmute(
@@ -153,6 +195,10 @@ process_nc_bloom_2024 = function(raw) {
 
 
 # Entry point
+#' @description entry point for NC ingestion entry point
+#' @param path2025 path to the combined NC 2025 workbook, in the pipeline this is the `nc_path25` file target
+#' @param path2024 path to the combined NC 2024 workbook (H2/F2 yield, bloom). In the pipeline this is the `nc_path24` file target
+#' @output list
 ingest_nc = function(path2025, path2024){
 
   yld_2025 = process_nc_yld_2025(read_nc_yld_2025_raw(path2025))

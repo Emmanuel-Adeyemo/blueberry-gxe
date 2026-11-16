@@ -52,8 +52,8 @@ AL_ID_COLS = c(
 
 
 
-#' @param path - path to AL rda file
-#' @output named list for every file in the rda file
+#' @param path - path to AL rda file e.g. `al_rda_file` from `'data/raw/al/OriginalData.rda'`
+#' @output named list for every file in the rda file like `BW23.ori`, `MetaData`
 read_al_rda = function(path){
   
   env = new.env()
@@ -66,8 +66,8 @@ read_al_rda = function(path){
 
 
 #' @description parse trial file name into loc/season. Should return NULL for MetaData and OffID files
-#' @param file_name - a single file name eg EV23.ori
-#' @output list(loc,season)
+#' @param file_name - a single file name eg EV23.ori, an element of `names(rda_file)`
+#' @output list(loc,season) or NULL if file_name does not match the pattern
 
 .al_parse_file_name = function(file_name){
   m = stringr::str_match(file_name, '^([A-Za-z]+)([0-9]{2})\\.ori$')
@@ -80,7 +80,7 @@ read_al_rda = function(path){
 
 
 #' @description identifies the trial files within the loaded rda file
-#' @param rda_file - combination of all csv trials in AL
+#' @param rda_file - combination of all csv trials in AL e.e. `al_rda` output of `read_al_rda()`
 #' @output tibble(file_name, location, season)
 #' 
 extract_trial_loc_and_season = function(rda_file){

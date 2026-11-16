@@ -12,6 +12,9 @@ library(tibble)
 .SOURCE_PREFIX = c(UF = 'FL')
 
 # fix one - normalize formatting noise
+#' @description normalizes a genotype/line name into a matchable key,lowercases it, strips apostrophes, and removes all whitespace
+#' @param x character vec of raw genotype/line names 
+#' @output a character vec of normalized keys, same length as `x`.
 normalize_pedigree_name = function(x) {
   x %>%
     tolower() %>%
@@ -21,6 +24,10 @@ normalize_pedigree_name = function(x) {
 
 
 # fix two - add prefix for UF's convention
+#' @description builds one or two candidate match keys per name: a plain normalized key and the institution prefix eg FL for UF genos
+#' @param names character vec of genotype/line names to build keys for e.g. `trial_genotypes` in `match_trial_genotypes()`, or `processed_pedigree$line_id`
+#' @param sources character vec the same length as `names` 
+#' @output df
 build_match_keys = function(names, sources = NA_character_) {
   if(length(sources) == 1) {
     sources = rep(sources, length(names))
@@ -51,6 +58,10 @@ build_match_keys = function(names, sources = NA_character_) {
 
 
 # do matching
+#' @description matches trial genotype names against the processed pedigree's `line_id`s by building normalized/institution prefix and inner-joining on `match_key`.
+#' @param trial_genotypes character vec of trial genotype names. In the pipeline this is the `trial_genotypes` target, i.e. `get_unique_genotypes(al_metadata)` 
+#' @param processed_pedigree a pedigree table with `line_id` and `source` columns. 
+#' @output df
 match_trial_genotypes = function(trial_genotypes, processed_pedigree) {
   trial_keys = build_match_keys(trial_genotypes) %>%
     dplyr::select('trial_genotype' = 'name', 'match_key')
