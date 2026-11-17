@@ -38,5 +38,6 @@ R/diagnostics
 *.swp
 *.ipynb
 *.pdf
+*.zip
 
 DESIGN.md
