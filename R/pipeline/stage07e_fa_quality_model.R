@@ -33,14 +33,14 @@ stage07e_targets = tar_map(
 
   tar_target(
     al_prep_qual,
-    prepare_fa_dta(aggregate_quality_trait_for_qc(al_quality_source_qual, trait), trait)
+    prepare_fa_dta(aggregate_quality_trait_for_qc(al_quality_source_qual, trait), trait, extra_cols = 'Age')
   ),
   tar_target(
     nc_prep_qual,
     prepare_nf_fa_dta(
       aggregate_nc_quality_for_fa(nc_quality_source_qual, trait, block_col = 'subplot'),
       trait,
-      block_col = 'subplot'
+      block_col = 'subplot', extra_cols = 'Age'
     )
   ),
   tar_target(
@@ -70,13 +70,13 @@ stage07e_targets = tar_map(
   ),
 
   # FA sommer
-  tar_target(fit_fa2_sm_qual, fit_fa_sommer(prep_qual, a_inv_sm_qual, 2)),
-  tar_target(fit_fa3_sm_qual, fit_fa_sommer(prep_qual, a_inv_sm_qual, 3)),
+  tar_target(fit_fa2_sm_qual, fit_fa_sommer(prep_qual, a_inv_sm_qual, 2, extra_fixed ='factor(Age)')),
+  tar_target(fit_fa3_sm_qual, fit_fa_sommer(prep_qual, a_inv_sm_qual, 3, extra_fixed ='factor(Age)')),
 
   # FA asreml
-  tar_target(fit_fa1_asr_qual, fit_fa_asreml(prep_qual, g_mat_qual, ka = 1)),
-  tar_target(fit_fa2_asr_qual, fit_fa_asreml(prep_qual, g_mat_qual, ka = 2)),
-  tar_target(fit_fa3_asr_qual, fit_fa_asreml(prep_qual, g_mat_qual, ka = 3)),
+  tar_target(fit_fa1_asr_qual, fit_fa_asreml(prep_qual, g_mat_qual, ka = 1, extra_fixed ='factor(Age)')),
+  tar_target(fit_fa2_asr_qual, fit_fa_asreml(prep_qual, g_mat_qual, ka = 2, extra_fixed ='factor(Age)')),
+  tar_target(fit_fa3_asr_qual, fit_fa_asreml(prep_qual, g_mat_qual, ka = 3, extra_fixed ='factor(Age)')),
 
   # mod comp
   tar_target(fa2_fa3_qual, anova.mmes(fit_fa2_sm_qual, fit_fa3_sm_qual)),
@@ -179,22 +179,22 @@ stage07e_targets = tar_map(
   
   tar_target(
     fit_fa2_min_asr_qual,
-    fit_fa_diag_asreml(prep_qual, Gmat = g_mat_qual, Dmat = d_mat_qual, ka = 2)
+    fit_fa_diag_asreml(prep_qual, Gmat = g_mat_qual, Dmat = d_mat_qual, ka = 2, extra_fixed ='factor(Age)')
   ),
 
   tar_target(
     fit_fa2_ke1_asr_qual,
-    fit_fa_ke1_asreml(prep_qual, Gmat = g_mat_qual, Dmat = d_mat_qual, ka = 2)
+    fit_fa_ke1_asreml(prep_qual, Gmat = g_mat_qual, Dmat = d_mat_qual, ka = 2, extra_fixed ='factor(Age)')
   ),
 
   tar_target(
     fit_fa2_min_sm_qual,
-    fit_fa3_min_sommer(prep_qual, a_inv_sm_qual, ka = 2)
+    fit_fa3_min_sommer(prep_qual, a_inv_sm_qual, ka = 2, extra_fixed ='factor(Age)')
   ),
 
   tar_target(
     fit_fa2_ke1_sm_qual,
-    fit_fa3_add_nonadd_sommer(prep_qual, a_inv_sm_qual, ka = 2, ke = 1)
+    fit_fa3_add_nonadd_sommer(prep_qual, a_inv_sm_qual, ka = 2, ke = 1, extra_fixed ='factor(Age)')
   ),
 
   tar_target(
@@ -238,12 +238,12 @@ stage07e_targets = tar_map(
 
   tar_target(
     fit_fa2_min_ide_asr_qual,
-    fit_fa_ide_asreml(prep_qual, Gmat = g_mat_qual, Dmat = d_mat_qual, ka = 2)
+    fit_fa_ide_asreml(prep_qual, Gmat = g_mat_qual, Dmat = d_mat_qual, ka = 2, extra_fixed ='factor(Age)')
   ),
 
   tar_target(
     fit_fa2_min_ide_sm_qual,
-    fit_fa3_min_ide_sommer(prep_qual, a_inv_sm_qual, d_inv_sm_qual, ka = 2)
+    fit_fa3_min_ide_sommer(prep_qual, a_inv_sm_qual, d_inv_sm_qual, ka = 2, extra_fixed ='factor(Age)')
   ),
 
   tar_target(

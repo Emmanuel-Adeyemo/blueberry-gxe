@@ -7,7 +7,7 @@ stage07c_targets = list(
     al_prep_auc,
     prepare_fa_dta(
       aggregate_bloom_to_subplot(al_bloom_auc, 'auc_corrected_percent'),
-      'auc_corrected_percent'
+      'auc_corrected_percent', extra_cols = 'Age'
     )
   ),
 
@@ -40,15 +40,15 @@ stage07c_targets = list(
   ),
 
   # FA sommer
-  tar_target(fit_diag_sm_auc, fit_diag_sommer(prep_auc, a_inv_sm_auc)),
-  tar_target(fit_fa1_sm_auc, fit_fa_sommer(prep_auc, a_inv_sm_auc, 1)),
-  tar_target(fit_fa2_sm_auc, fit_fa_sommer(prep_auc, a_inv_sm_auc, 2)),
-  tar_target(fit_fa3_sm_auc, fit_fa_sommer(prep_auc, a_inv_sm_auc, 3)),
+  tar_target(fit_diag_sm_auc, fit_diag_sommer(prep_auc, a_inv_sm_auc, extra_fixed ='factor(Age)')),
+  tar_target(fit_fa1_sm_auc, fit_fa_sommer(prep_auc, a_inv_sm_auc, 1, extra_fixed ='factor(Age)')),
+  tar_target(fit_fa2_sm_auc, fit_fa_sommer(prep_auc, a_inv_sm_auc, 2, extra_fixed ='factor(Age)')),
+  tar_target(fit_fa3_sm_auc, fit_fa_sommer(prep_auc, a_inv_sm_auc, 3, extra_fixed ='factor(Age)')),
 
   # FA asreml
-  tar_target(fit_fa1_asr_auc, fit_fa_asreml(prep_auc, g_mat_auc, ka = 1)),
-  tar_target(fit_fa2_asr_auc, fit_fa_asreml(prep_auc, g_mat_auc, ka = 2)),
-  tar_target(fit_fa3_asr_auc, fit_fa_asreml(prep_auc, g_mat_auc, ka = 3)),
+  tar_target(fit_fa1_asr_auc, fit_fa_asreml(prep_auc, g_mat_auc, ka = 1, extra_fixed ='factor(Age)')),
+  tar_target(fit_fa2_asr_auc, fit_fa_asreml(prep_auc, g_mat_auc, ka = 2, extra_fixed ='factor(Age)')),
+  tar_target(fit_fa3_asr_auc, fit_fa_asreml(prep_auc, g_mat_auc, ka = 3, extra_fixed ='factor(Age)')),
 
   # model comparison - sommer
   tar_target(diag_fa1_auc, anova.mmes(fit_diag_sm_auc, fit_fa1_sm_auc)),
@@ -145,22 +145,22 @@ stage07c_targets = list(
   # 10/25 
   tar_target(
     fit_fa2_min_asr_auc,
-    fit_fa_diag_asreml(prep_auc, Gmat = g_mat_auc, Dmat = d_mat_auc, ka = 2)
+    fit_fa_diag_asreml(prep_auc, Gmat = g_mat_auc, Dmat = d_mat_auc, ka = 2, extra_fixed ='factor(Age)')
   ),
 
   tar_target(
     fit_fa2_ke1_asr_auc,
-    fit_fa_ke1_asreml(prep_auc, Gmat = g_mat_auc, Dmat = d_mat_auc, ka = 2)
+    fit_fa_ke1_asreml(prep_auc, Gmat = g_mat_auc, Dmat = d_mat_auc, ka = 2, extra_fixed ='factor(Age)')
   ),
 
   tar_target(
     fit_fa2_min_sm_auc,
-    fit_fa3_min_sommer(prep_auc, a_inv_sm_auc, ka = 2)
+    fit_fa3_min_sommer(prep_auc, a_inv_sm_auc, ka = 2, extra_fixed ='factor(Age)')
   ),
 
   tar_target(
     fit_fa2_ke1_sm_auc,
-    fit_fa3_add_nonadd_sommer(prep_auc, a_inv_sm_auc, ka = 2, ke = 1)
+    fit_fa3_add_nonadd_sommer(prep_auc, a_inv_sm_auc, ka = 2, ke = 1, extra_fixed ='factor(Age)')
   ),
 
   tar_target(
@@ -204,12 +204,12 @@ stage07c_targets = list(
 
   tar_target(
     fit_fa2_min_ide_asr_auc,
-    fit_fa_ide_asreml(prep_auc, Gmat = g_mat_auc, Dmat = d_mat_auc, ka = 2)
+    fit_fa_ide_asreml(prep_auc, Gmat = g_mat_auc, Dmat = d_mat_auc, ka = 2, extra_fixed ='factor(Age)')
   ),
 
   tar_target(
     fit_fa2_min_ide_sm_auc,
-    fit_fa3_min_ide_sommer(prep_auc, a_inv_sm_auc, d_inv_sm_auc, ka = 2)
+    fit_fa3_min_ide_sommer(prep_auc, a_inv_sm_auc, d_inv_sm_auc, ka = 2, extra_fixed ='factor(Age)')
   ),
 
   tar_target(

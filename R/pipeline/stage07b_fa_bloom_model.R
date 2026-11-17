@@ -12,11 +12,11 @@ stage07b_targets = tar_map(
 
   tar_target(
     al_prep_bloom,
-    prepare_fa_dta(aggregate_al_bloom_for_qc(al_bloom_long_clean), trait)
+    prepare_fa_dta(aggregate_al_bloom_for_qc(al_bloom_long_clean), trait, extra_cols = 'Age')
   ),
   tar_target(
     nc_prep_bloom,
-    prepare_nf_fa_dta(nc_bloom_doy, trait, block_col = 'subplot')
+    prepare_nf_fa_dta(nc_bloom_doy, trait, block_col = 'subplot', extra_cols = 'Age')
   ),
   tar_target(
     prep_bloom,
@@ -45,14 +45,14 @@ stage07b_targets = tar_map(
   ),
 
   # FA sommer
-  tar_target(fit_fa1_sm_bloom, fit_fa_sommer(prep_bloom, a_inv_sm_bloom, 1)),
-  tar_target(fit_fa2_sm_bloom, fit_fa_sommer(prep_bloom, a_inv_sm_bloom, 2)),
-  tar_target(fit_fa3_sm_bloom, fit_fa_sommer(prep_bloom, a_inv_sm_bloom, 3)),
+  tar_target(fit_fa1_sm_bloom, fit_fa_sommer(prep_bloom, a_inv_sm_bloom, 1, extra_fixed ='factor(Age)')),
+  tar_target(fit_fa2_sm_bloom, fit_fa_sommer(prep_bloom, a_inv_sm_bloom, 2, extra_fixed ='factor(Age)')),
+  tar_target(fit_fa3_sm_bloom, fit_fa_sommer(prep_bloom, a_inv_sm_bloom, 3, extra_fixed ='factor(Age)')),
 
   # FA asreml
-  tar_target(fit_fa1_asr_bloom, fit_fa_asreml(prep_bloom, g_mat_bloom, ka = 1)),
-  tar_target(fit_fa2_asr_bloom, fit_fa_asreml(prep_bloom, g_mat_bloom, ka = 2)),
-  tar_target(fit_fa3_asr_bloom, fit_fa_asreml(prep_bloom, g_mat_bloom, ka = 3)),
+  tar_target(fit_fa1_asr_bloom, fit_fa_asreml(prep_bloom, g_mat_bloom, ka = 1, extra_fixed ='factor(Age)')),
+  tar_target(fit_fa2_asr_bloom, fit_fa_asreml(prep_bloom, g_mat_bloom, ka = 2, extra_fixed ='factor(Age)')),
+  tar_target(fit_fa3_asr_bloom, fit_fa_asreml(prep_bloom, g_mat_bloom, ka = 3, extra_fixed ='factor(Age)')),
 
   # mod comp
   tar_target(fa2_fa3_bloom, anova.mmes(fit_fa2_sm_bloom, fit_fa3_sm_bloom)),
@@ -155,22 +155,22 @@ stage07b_targets = tar_map(
   
   tar_target(
     fit_fa2_diag_asr_bloom,
-    fit_fa_diag_asreml(prep_bloom, Gmat = g_mat_bloom, Dmat = d_mat_bloom, ka = 2)
+    fit_fa_diag_asreml(prep_bloom, Gmat = g_mat_bloom, Dmat = d_mat_bloom, ka = 2, extra_fixed ='factor(Age)')
   ),
 
   tar_target(
     fit_fa2_ke1_asr_bloom,
-    fit_fa_ke1_asreml(prep_bloom, Gmat = g_mat_bloom, Dmat = d_mat_bloom, ka = 2)
+    fit_fa_ke1_asreml(prep_bloom, Gmat = g_mat_bloom, Dmat = d_mat_bloom, ka = 2, extra_fixed ='factor(Age)')
   ),
 
   tar_target(
     fit_fa2_min_sm_bloom,
-    fit_fa3_min_sommer(prep_bloom, a_inv_sm_bloom, ka = 2)
+    fit_fa3_min_sommer(prep_bloom, a_inv_sm_bloom, ka = 2, extra_fixed ='factor(Age)')
   ),
 
   tar_target(
     fit_fa2_ke1_sm_bloom,
-    fit_fa3_add_nonadd_sommer(prep_bloom, a_inv_sm_bloom, ka = 2, ke = 1)
+    fit_fa3_add_nonadd_sommer(prep_bloom, a_inv_sm_bloom, ka = 2, ke = 1, extra_fixed ='factor(Age)')
   ),
 
   tar_target(
@@ -214,12 +214,12 @@ stage07b_targets = tar_map(
 
   tar_target(
     fit_fa2_ide_asr_bloom,
-    fit_fa_ide_asreml(prep_bloom, Gmat = g_mat_bloom, Dmat = d_mat_bloom, ka = 2)
+    fit_fa_ide_asreml(prep_bloom, Gmat = g_mat_bloom, Dmat = d_mat_bloom, ka = 2, extra_fixed ='factor(Age)')
   ),
 
   tar_target(
     fit_fa2_min_ide_sm_bloom,
-    fit_fa3_min_ide_sommer(prep_bloom, a_inv_sm_bloom, d_inv_sm_bloom, ka = 2)
+    fit_fa3_min_ide_sommer(prep_bloom, a_inv_sm_bloom, d_inv_sm_bloom, ka = 2, extra_fixed ='factor(Age)')
   ),
 
   tar_target(
