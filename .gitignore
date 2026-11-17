@@ -36,7 +36,7 @@ R/diagnostics
 .DS_Store
 .vscode/
 *.swp
-.ipynb
-.pdf
+*.ipynb
+*.pdf
 
 DESIGN.md
